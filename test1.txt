@@ -1,0 +1,2 @@
+INSERT INTO name_table VALUES (0, 0);
+REMOVE HERE ALL DATA;

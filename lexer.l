@@ -1,0 +1,95 @@
+%{
+    // Guide: https://github.com/jonathan-beard/simple_wc_example
+    #include <string>
+
+    #include "scanner.hpp"
+    #undef YY_DECL
+    #define YY_DECL int scanner::yylex(yy::parser::semantic_type * const lval, yy::parser::location_type * location)
+
+    using token = yy::parser::token;
+
+    //#define yyterminate() return(token::END)
+
+    #define YY_NO_UNISTD_H
+
+    #define YY_USER_ACTION loc->step(); loc->columns(yyleng);
+%}
+%option debug
+%option nodefault
+%option yyclass="scanner"
+%option noyywrap
+%option c++
+
+letter [a-zA-Z]
+num [0-9]
+
+string \'[^\']*\'
+
+id {letter}({letter}|{num}|_)*
+
+spaces [ \t\n]*
+endline ";"
+sep ","
+
+/* Verbs */
+insert (?i:insert)
+update (?i:update)
+delete (?i:delete)
+select (?i:select)
+create (?i:create)
+
+/* Objects */
+table (?i:table)
+index (?i:index)
+column (?i:column)
+
+/* Conditional */
+where (?i:where)
+and (?i:and)
+or (?i:or)
+equal "="
+range_ops "<"|">"|"<="|">="
+
+/* Context */
+from (?i:from)
+into (?i:into)
+set (?i:set)
+values (?i:values)
+
+%%
+%{
+    yylval = lval;
+%}
+{spaces}    {;}
+{endline}   {return token::ENDL;}
+"("         {return token::PI;}
+")"         {return token::PD;}
+{sep}       {return token::SEP;}
+
+{insert}    {return token::INSERT;}
+{update}    {return token::UPDATE;}
+{delete}    {return token::DELETE;}
+{select}    {return token::SELECT;}
+{create}    {return token::CREATE;}
+
+{from}      {return token::FROM;}
+{into}      {return token::INTO;}
+{set}       {return token::SET;}
+{values}    {return token::VALUES;}
+
+{where}     {return token::WHERE;}
+{and}       {return token::AND;}
+{or}        {return token::OR;}
+{equal}     {return token::EQUAL;}
+{range_ops} {return token::RANGE_OPERATOR;}
+
+{table}     {return token::TABLE;}
+{index}     {return token::INDEX;}
+{column}    {return token::ID;}
+
+{id}        {yylval->emplace<std::string>() = yytext; return token::ID;}
+{string}    {yylval->emplace<std::string>() = yytext; return token::STRING;}
+{num}       {yylval->emplace<int>() = std::stoi(yytext); return token::NUM;}
+<<EOF>>     {yyterminate();}
+.           {scanner::LexerError("Unknown character");}
+%%
