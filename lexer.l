@@ -56,6 +56,11 @@ into (?i:into)
 set (?i:set)
 values (?i:values)
 
+/* Data Types */
+int (?i:int)
+double (?i:double)
+char (?i:char)
+
 %%
 %{
     yylval = lval;
@@ -86,6 +91,10 @@ values (?i:values)
 {table}     {return token::TABLE;}
 {index}     {return token::INDEX;}
 {column}    {return token::ID;}
+
+{int}       {return token::INT;}
+{double}    {return token::DOUBLE;}
+{char}      {return token::CHAR;}
 
 {id}        {yylval->emplace<std::string>() = yytext; return token::ID;}
 {string}    {yylval->emplace<std::string>() = yytext; return token::STRING;}

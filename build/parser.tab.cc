@@ -695,31 +695,37 @@ namespace yy {
           switch (yyn)
             {
   case 3: // $@1: %empty
-#line 45 "parser.yy"
+#line 46 "parser.yy"
                                     {dr.exec();}
 #line 701 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 14: // INSERT_TYPE: INSERT INTO ID VALUES PI PARAMS PD
-#line 55 "parser.yy"
+  case 15: // INSERT_TYPE: INSERT INTO ID VALUES PI PARAMS PD
+#line 56 "parser.yy"
                                                        {dr.setTableName(yystack_[4].value.as < std::string > ());}
 #line 707 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 15: // DELETE_TYPE: DELETE FROM ID CONDITIONALS
-#line 56 "parser.yy"
+  case 16: // DELETE_TYPE: DELETE FROM ID CONDITIONALS
+#line 57 "parser.yy"
                                                 {dr.setTableName(yystack_[1].value.as < std::string > ());}
 #line 713 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 16: // UPDATE_TYPE: UPDATE ID SET SET_LIST CONDITIONALS
-#line 57 "parser.yy"
+  case 17: // UPDATE_TYPE: UPDATE ID SET SET_LIST CONDITIONALS
+#line 58 "parser.yy"
                                                         {dr.setTableName(yystack_[3].value.as < std::string > ());}
 #line 719 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
+  case 18: // CREATE_TYPE: CREATE TABLE ID PI CREATE_LIST PD
+#line 59 "parser.yy"
+                                                      {dr.setTableName(yystack_[3].value.as < std::string > ());}
+#line 725 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+    break;
 
-#line 723 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+
+#line 729 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
 
             default:
               break;
@@ -912,93 +918,107 @@ namespace yy {
 
 
 
-  const signed char parser::yypact_ninf_ = -27;
+  const signed char parser::yypact_ninf_ = -32;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const signed char
   parser::yypact_[] =
   {
-      -1,    -8,   -15,     1,    16,    19,   -27,   -27,   -27,     2,
-      13,     3,   -27,   -27,    17,     6,    18,    -1,    11,    20,
-      -2,   -27,   -17,   -27,   -27,     0,   -11,     6,   -27,   -27,
-      21,   -27,   -27,    22,    24,    25,   -27,   -27,    30,    12,
-     -27,   -27,   -27,   -11,    -5,   -17,   -17,     0,   -27,   -27,
-      26,   -27,    25,   -27,   -27,   -11,   -27
+       0,    -7,   -17,     9,     4,    24,    25,   -32,   -32,   -32,
+     -32,     5,    22,     7,     8,   -32,   -32,    26,    10,    23,
+      19,     0,    20,    27,    -2,   -32,   -14,   -32,    15,   -32,
+     -19,   -11,    10,   -32,   -32,    28,   -32,   -32,    29,    31,
+      32,   -32,   -32,     1,    -1,   -32,    45,    30,   -32,   -32,
+     -32,   -11,     2,   -14,   -14,   -32,   -32,    33,   -32,    15,
+     -32,   -19,   -32,   -32,    34,   -32,    32,   -32,    21,   -32,
+     -32,   -11,    35,   -32,   -32
   };
 
   const signed char
   parser::yydefact_[] =
   {
-       2,     0,     0,     0,     0,     0,     5,     6,     7,     0,
-       0,     0,     1,     3,     0,     0,    17,     2,     0,     0,
-      17,    28,     0,    15,     4,     0,     0,     0,    16,     8,
-      10,     9,    11,     0,    18,    20,    22,    24,    13,     0,
-      10,    29,    27,     0,     0,     0,     0,     0,    14,    23,
-      10,    26,    19,    21,    12,     0,    25
+       2,     0,     0,     0,     0,     0,     0,     5,     6,     7,
+       8,     0,     0,     0,     0,     1,     3,     0,     0,    23,
+       0,     2,     0,     0,    23,    34,     0,    16,     0,     4,
+       0,     0,     0,    17,     9,    11,    10,    12,     0,    24,
+      26,    28,    30,     0,     0,    37,    14,     0,    11,    35,
+      33,     0,     0,     0,     0,    19,    20,    21,    38,     0,
+      18,     0,    15,    29,    11,    32,    25,    27,     0,    36,
+      13,     0,     0,    31,    22
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-     -27,    28,   -27,   -27,   -24,   -26,    -4,   -27,   -27,   -27,
-      27,   -27,    -9,     4,   -27,   -27,    15
+     -32,    36,   -32,   -32,   -29,   -31,   -10,   -32,   -32,   -32,
+     -32,   -32,    37,   -32,     3,     6,   -32,   -32,    38,   -32,
+      -5
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-       0,     4,    17,     5,    32,    33,    39,     6,     7,     8,
-      23,    34,    35,    36,    37,    20,    21
+       0,     5,    21,     6,    37,    38,    47,     7,     8,     9,
+      10,    58,    27,    39,    40,    41,    42,    24,    25,    44,
+      45
   };
 
   const signed char
   parser::yytable_[] =
   {
-      41,    38,    27,     9,     1,     2,     3,    29,    30,    31,
-      10,    11,    22,    29,    40,    31,    12,    49,    51,    29,
-      50,    31,    13,    38,    29,    15,    31,    14,    16,    56,
-      18,    19,    22,    25,    47,    48,    52,    26,    43,    45,
-      44,    46,    42,    54,    55,    24,     0,    28,     0,     0,
-      53
+      49,    46,    32,    59,    11,     1,     2,     3,    34,     4,
+      36,    12,    26,    34,    35,    36,    34,    48,    36,    13,
+      63,    65,    60,    14,    15,    55,    56,    57,    16,    34,
+      64,    36,    46,    17,    18,    19,    20,    26,    23,    22,
+      73,    28,    30,    43,    31,    51,    53,    52,    54,    61,
+      72,    70,    71,    62,    69,    68,    66,    29,    74,     0,
+      67,    33,     0,     0,     0,     0,     0,     0,     0,     0,
+      50
   };
 
   const signed char
   parser::yycheck_[] =
   {
-      26,    25,     4,    11,     5,     6,     7,    24,    25,    26,
-      25,    10,    14,    24,    25,    26,     0,    43,    44,    24,
-      25,    26,     3,    47,    24,    12,    26,    25,    25,    55,
-      13,    25,    14,    22,     4,    23,    45,    17,    17,    15,
-      18,    16,    27,    47,    18,    17,    -1,    20,    -1,    -1,
-      46
+      31,    30,     4,     4,    11,     5,     6,     7,    27,     9,
+      29,    28,    14,    27,    28,    29,    27,    28,    29,    10,
+      51,    52,    23,    19,     0,    24,    25,    26,     3,    27,
+      28,    29,    61,    28,    12,    28,    28,    14,    28,    13,
+      71,    22,    22,    28,    17,    17,    15,    18,    16,     4,
+      29,    61,    18,    23,    59,    22,    53,    21,    23,    -1,
+      54,    24,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      32
   };
 
   const signed char
   parser::yystos_[] =
   {
-       0,     5,     6,     7,    28,    30,    34,    35,    36,    11,
-      25,    10,     0,     3,    25,    12,    25,    29,    13,    25,
-      42,    43,    14,    37,    28,    22,    17,     4,    37,    24,
-      25,    26,    31,    32,    38,    39,    40,    41,    31,    33,
-      25,    32,    43,    17,    18,    15,    16,     4,    23,    32,
-      25,    32,    39,    40,    33,    18,    32
+       0,     5,     6,     7,     9,    31,    33,    37,    38,    39,
+      40,    11,    28,    10,    19,     0,     3,    28,    12,    28,
+      28,    32,    13,    28,    47,    48,    14,    42,    22,    31,
+      22,    17,     4,    42,    27,    28,    29,    34,    35,    43,
+      44,    45,    46,    28,    49,    50,    34,    36,    28,    35,
+      48,    17,    18,    15,    16,    24,    25,    26,    41,     4,
+      23,     4,    23,    35,    28,    35,    44,    45,    22,    50,
+      36,    18,    29,    35,    23
   };
 
   const signed char
   parser::yyr1_[] =
   {
-       0,    27,    28,    29,    28,    30,    30,    30,    31,    31,
-      32,    32,    33,    33,    34,    35,    36,    37,    37,    38,
-      38,    39,    39,    40,    40,    41,    41,    42,    42,    43
+       0,    30,    31,    32,    31,    33,    33,    33,    33,    34,
+      34,    35,    35,    36,    36,    37,    38,    39,    40,    41,
+      41,    41,    41,    42,    42,    43,    43,    44,    44,    45,
+      45,    46,    46,    47,    47,    48,    49,    49,    50
   };
 
   const signed char
   parser::yyr2_[] =
   {
        0,     2,     0,     0,     4,     1,     1,     1,     1,     1,
-       1,     1,     3,     1,     7,     4,     5,     0,     2,     3,
-       1,     3,     1,     3,     1,     5,     3,     3,     1,     3
+       1,     1,     1,     3,     1,     7,     4,     5,     6,     1,
+       1,     1,     4,     0,     2,     3,     1,     3,     1,     3,
+       1,     5,     3,     3,     1,     3,     3,     1,     2
   };
 
 
@@ -1011,11 +1031,12 @@ namespace yy {
   "\"end of file\"", "error", "\"invalid token\"", "ENDL", "SEP",
   "INSERT", "UPDATE", "DELETE", "SELECT", "CREATE", "FROM", "INTO", "SET",
   "VALUES", "WHERE", "AND", "OR", "EQUAL", "RANGE_OPERATOR", "TABLE",
-  "INDEX", "COLUMN", "PI", "PD", "STRING", "ID", "NUM", "$accept",
-  "PROGRAM", "$@1", "SENTENCE", "INPLACE_VALUE", "VALUE", "PARAMS",
-  "INSERT_TYPE", "DELETE_TYPE", "UPDATE_TYPE", "CONDITIONALS",
-  "CONDITION_LIST", "FACTOR_CONDITION", "CONDITION", "RANGE_CONDITION",
-  "SET_LIST", "SET_UNIT", YY_NULLPTR
+  "INDEX", "COLUMN", "PI", "PD", "INT", "DOUBLE", "CHAR", "STRING", "ID",
+  "NUM", "$accept", "PROGRAM", "$@1", "SENTENCE", "INPLACE_VALUE", "VALUE",
+  "PARAMS", "INSERT_TYPE", "DELETE_TYPE", "UPDATE_TYPE", "CREATE_TYPE",
+  "TYPE", "CONDITIONALS", "CONDITION_LIST", "FACTOR_CONDITION",
+  "CONDITION", "RANGE_CONDITION", "SET_LIST", "SET_UNIT", "CREATE_LIST",
+  "CREATE_UNIT", YY_NULLPTR
   };
 #endif
 
@@ -1024,9 +1045,10 @@ namespace yy {
   const signed char
   parser::yyrline_[] =
   {
-       0,    44,    44,    45,    45,    47,    47,    47,    49,    49,
-      50,    50,    51,    51,    55,    56,    57,    60,    61,    63,
-      63,    64,    64,    66,    67,    68,    69,    72,    72,    73
+       0,    45,    45,    46,    46,    48,    48,    48,    48,    50,
+      50,    51,    51,    52,    52,    56,    57,    58,    59,    62,
+      62,    62,    62,    65,    66,    68,    68,    69,    69,    71,
+      72,    73,    74,    77,    77,    78,    81,    81,    82
   };
 
   void
@@ -1093,10 +1115,10 @@ namespace yy {
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26
+      25,    26,    27,    28,    29
     };
     // Last valid token kind.
-    const int code_max = 281;
+    const int code_max = 284;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1107,9 +1129,9 @@ namespace yy {
   }
 
 } // yy
-#line 1111 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 1133 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
 
-#line 74 "parser.yy"
+#line 83 "parser.yy"
 
 
 void yy::parser::error(const location_type &l, const std::string &message){

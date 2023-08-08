@@ -497,9 +497,12 @@ namespace yy {
     COLUMN = 276,                  // COLUMN
     PI = 277,                      // PI
     PD = 278,                      // PD
-    STRING = 279,                  // STRING
-    ID = 280,                      // ID
-    NUM = 281                      // NUM
+    INT = 279,                     // INT
+    DOUBLE = 280,                  // DOUBLE
+    CHAR = 281,                    // CHAR
+    STRING = 282,                  // STRING
+    ID = 283,                      // ID
+    NUM = 284                      // NUM
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -516,7 +519,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 27, ///< Number of tokens.
+        YYNTOKENS = 30, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -542,26 +545,33 @@ namespace yy {
         S_COLUMN = 21,                           // COLUMN
         S_PI = 22,                               // PI
         S_PD = 23,                               // PD
-        S_STRING = 24,                           // STRING
-        S_ID = 25,                               // ID
-        S_NUM = 26,                              // NUM
-        S_YYACCEPT = 27,                         // $accept
-        S_PROGRAM = 28,                          // PROGRAM
-        S_29_1 = 29,                             // $@1
-        S_SENTENCE = 30,                         // SENTENCE
-        S_INPLACE_VALUE = 31,                    // INPLACE_VALUE
-        S_VALUE = 32,                            // VALUE
-        S_PARAMS = 33,                           // PARAMS
-        S_INSERT_TYPE = 34,                      // INSERT_TYPE
-        S_DELETE_TYPE = 35,                      // DELETE_TYPE
-        S_UPDATE_TYPE = 36,                      // UPDATE_TYPE
-        S_CONDITIONALS = 37,                     // CONDITIONALS
-        S_CONDITION_LIST = 38,                   // CONDITION_LIST
-        S_FACTOR_CONDITION = 39,                 // FACTOR_CONDITION
-        S_CONDITION = 40,                        // CONDITION
-        S_RANGE_CONDITION = 41,                  // RANGE_CONDITION
-        S_SET_LIST = 42,                         // SET_LIST
-        S_SET_UNIT = 43                          // SET_UNIT
+        S_INT = 24,                              // INT
+        S_DOUBLE = 25,                           // DOUBLE
+        S_CHAR = 26,                             // CHAR
+        S_STRING = 27,                           // STRING
+        S_ID = 28,                               // ID
+        S_NUM = 29,                              // NUM
+        S_YYACCEPT = 30,                         // $accept
+        S_PROGRAM = 31,                          // PROGRAM
+        S_32_1 = 32,                             // $@1
+        S_SENTENCE = 33,                         // SENTENCE
+        S_INPLACE_VALUE = 34,                    // INPLACE_VALUE
+        S_VALUE = 35,                            // VALUE
+        S_PARAMS = 36,                           // PARAMS
+        S_INSERT_TYPE = 37,                      // INSERT_TYPE
+        S_DELETE_TYPE = 38,                      // DELETE_TYPE
+        S_UPDATE_TYPE = 39,                      // UPDATE_TYPE
+        S_CREATE_TYPE = 40,                      // CREATE_TYPE
+        S_TYPE = 41,                             // TYPE
+        S_CONDITIONALS = 42,                     // CONDITIONALS
+        S_CONDITION_LIST = 43,                   // CONDITION_LIST
+        S_FACTOR_CONDITION = 44,                 // FACTOR_CONDITION
+        S_CONDITION = 45,                        // CONDITION
+        S_RANGE_CONDITION = 46,                  // RANGE_CONDITION
+        S_SET_LIST = 47,                         // SET_LIST
+        S_SET_UNIT = 48,                         // SET_UNIT
+        S_CREATE_LIST = 49,                      // CREATE_LIST
+        S_CREATE_UNIT = 50                       // CREATE_UNIT
       };
     };
 
@@ -792,7 +802,7 @@ switch (yykind)
       {
 #if !defined _MSC_VER || defined __clang__
         YY_ASSERT (tok == token::YYEOF
-                   || (token::YYerror <= tok && tok <= token::PD));
+                   || (token::YYerror <= tok && tok <= token::CHAR));
 #endif
       }
 #if 201103L <= YY_CPLUSPLUS
@@ -1233,6 +1243,51 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_INT (location_type l)
+      {
+        return symbol_type (token::INT, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_INT (const location_type& l)
+      {
+        return symbol_type (token::INT, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_DOUBLE (location_type l)
+      {
+        return symbol_type (token::DOUBLE, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_DOUBLE (const location_type& l)
+      {
+        return symbol_type (token::DOUBLE, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_CHAR (location_type l)
+      {
+        return symbol_type (token::CHAR, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_CHAR (const location_type& l)
+      {
+        return symbol_type (token::CHAR, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_STRING (std::string v, location_type l)
       {
         return symbol_type (token::STRING, std::move (v), std::move (l));
@@ -1579,9 +1634,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 50,     ///< Last index in yytable_.
-      yynnts_ = 17,  ///< Number of nonterminal symbols.
-      yyfinal_ = 12 ///< Termination state number.
+      yylast_ = 70,     ///< Last index in yytable_.
+      yynnts_ = 21,  ///< Number of nonterminal symbols.
+      yyfinal_ = 15 ///< Termination state number.
     };
 
 
@@ -1593,7 +1648,7 @@ switch (yykind)
 
 
 } // yy
-#line 1597 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
+#line 1652 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
 
 
 
