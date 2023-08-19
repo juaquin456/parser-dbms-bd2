@@ -186,6 +186,19 @@ CMakeFiles/my_wc.dir/driver.cpp.o: ../driver.cpp \
   /usr/include/assert.h \
   ../driver.hpp \
   /usr/include/c++/11/cstddef \
+  /usr/include/c++/11/unordered_set \
+  /usr/include/c++/11/ext/aligned_buffer.h \
+  /usr/include/c++/11/bits/hashtable.h \
+  /usr/include/c++/11/bits/hashtable_policy.h \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/enable_special_members.h \
+  /usr/include/c++/11/bits/unordered_set.h \
+  /usr/include/c++/11/bits/erase_if.h \
   ../scanner.hpp \
   /usr/include/FlexLexer.h \
   /usr/include/c++/11/iostream \
@@ -573,6 +586,19 @@ CMakeFiles/my_wc.dir/main.cpp.o: ../main.cpp \
   /usr/include/strings.h \
   ../driver.hpp \
   /usr/include/c++/11/cstddef \
+  /usr/include/c++/11/unordered_set \
+  /usr/include/c++/11/ext/aligned_buffer.h \
+  /usr/include/c++/11/bits/hashtable.h \
+  /usr/include/c++/11/bits/hashtable_policy.h \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/enable_special_members.h \
+  /usr/include/c++/11/bits/unordered_set.h \
+  /usr/include/c++/11/bits/erase_if.h \
   ../scanner.hpp \
   /usr/include/FlexLexer.h \
   parser.tab.hh \
@@ -777,8 +803,21 @@ CMakeFiles/my_wc.dir/parser.tab.cc.o: parser.tab.cc \
   /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
   /usr/include/c++/11/bits/fstream.tcc \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
   ../driver.hpp \
   /usr/include/c++/11/cstddef \
+  /usr/include/c++/11/unordered_set \
+  /usr/include/c++/11/ext/aligned_buffer.h \
+  /usr/include/c++/11/bits/hashtable.h \
+  /usr/include/c++/11/bits/hashtable_policy.h \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/enable_special_members.h \
+  /usr/include/c++/11/bits/unordered_set.h \
+  /usr/include/c++/11/bits/erase_if.h \
   ../scanner.hpp \
   /usr/include/FlexLexer.h \
   parser.tab.hh \
@@ -804,6 +843,22 @@ location.hh:
 /usr/include/c++/11/bits/stl_uninitialized.h:
 
 /usr/include/c++/11/vector:
+
+/usr/include/c++/11/bits/erase_if.h:
+
+/usr/include/c++/11/bits/unordered_set.h:
+
+/usr/include/c++/11/bits/enable_special_members.h:
+
+/usr/include/c++/11/bits/uses_allocator.h:
+
+/usr/include/c++/11/array:
+
+/usr/include/c++/11/bits/stl_relops.h:
+
+/usr/include/c++/11/bits/hashtable_policy.h:
+
+/usr/include/c++/11/bits/hashtable.h:
 
 ../driver.hpp:
 
@@ -861,6 +916,8 @@ location.hh:
 
 /usr/include/x86_64-linux-gnu/bits/errno.h:
 
+/usr/include/c++/11/utility:
+
 /usr/include/errno.h:
 
 /usr/include/c++/11/cerrno:
@@ -878,6 +935,8 @@ location.hh:
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
 
 /usr/include/x86_64-linux-gnu/bits/byteswap.h:
+
+/usr/include/c++/11/ext/aligned_buffer.h:
 
 /usr/include/endian.h:
 
@@ -930,6 +989,8 @@ parser.tab.hh:
 /usr/include/c++/11/bits/nested_exception.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
+
+/usr/include/c++/11/tuple:
 
 /usr/include/c++/11/type_traits:
 
@@ -1036,6 +1097,8 @@ parser.tab.hh:
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
 
 /usr/include/c++/11/bits/postypes.h:
+
+/usr/include/c++/11/bits/invoke.h:
 
 /usr/include/x86_64-linux-gnu/bits/timex.h:
 
@@ -1156,6 +1219,8 @@ parser.tab.hh:
 /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
 
 /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
+
+/usr/include/c++/11/unordered_set:
 
 /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
 

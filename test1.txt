@@ -1,2 +1,1 @@
-INSERT INTO name_table VALUES (0, 0);
-CREATE TABLE name_table (pk int, col1 char(1), col2 char(4), print double);
+CREATE TABLE name_table (iden int primary key, col1 char(1), col2 char(4), col3 double);

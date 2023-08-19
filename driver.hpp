@@ -4,13 +4,14 @@
 #include <string>
 #include <cstddef>
 #include <istream>
+#include <unordered_set>
 
 #include "scanner.hpp"
 #include "parser.tab.hh"
 
 class driver{
 public:
-    driver() = default;
+    driver();
 
     virtual ~driver();
 
@@ -21,10 +22,10 @@ public:
     void insert();
     void del();
     void exec();
-    void setTableName(const std::string& table);
+    void createTable(std::string& tablename, const std::vector<std::tuple<std::string, std::pair<int, int>, bool>*>& columns);
 private:
     void parse_helper(std::istream &stream);
-    std::string table_name;
+    std::unordered_set<std::string> tablenames;
     yy::parser *parser = nullptr;
     scanner *sc = nullptr;
 };

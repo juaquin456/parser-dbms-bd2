@@ -15,6 +15,7 @@
     #define YY_NULLPTR 0
     #endif
     #endif
+
 }
 
 %parse-param {scanner &sc}
@@ -24,6 +25,8 @@
     #include <iostream>
     #include <cstdlib>
     #include <fstream>
+    #include <vector>
+    #include <utility>
     #include "driver.hpp"
 
     #undef yylex
@@ -33,11 +36,14 @@
 %define api.value.type variant
 %define parse.assert
 
-%token ENDL SEP INSERT UPDATE DELETE SELECT CREATE FROM INTO SET VALUES WHERE AND OR EQUAL RANGE_OPERATOR TABLE INDEX COLUMN PI PD
-%token INT DOUBLE CHAR
+%token ENDL SEP INSERT UPDATE DELETE SELECT CREATE FROM INTO SET VALUES WHERE AND OR EQUAL RANGE_OPERATOR TABLE INDEX COLUMN PI PD PK
+%token INT DOUBLE CHAR BOOL DATE
 %token <std::string> STRING
 %token <std::string> ID
 %token <int> NUM
+%type <std::vector<std::tuple<std::string, std::pair<int, int>, bool>*>> CREATE_LIST
+%type <std::tuple<std::string, std::pair<int, int>, bool>*> CREATE_UNIT
+%type <std::pair<int, int>> TYPE
 %locations
 
 %%
@@ -53,13 +59,13 @@ PARAMS:         INPLACE_VALUE SEP PARAMS | INPLACE_VALUE;
 
 /* SENTECES TYPE */
 
-INSERT_TYPE:        INSERT INTO ID VALUES PI PARAMS PD {dr.setTableName($3);};
-DELETE_TYPE:        DELETE FROM ID CONDITIONALS {dr.setTableName($3);};
-UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS {dr.setTableName($2);};
-CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.setTableName($3);};
+INSERT_TYPE:        INSERT INTO ID VALUES PI PARAMS PD;
+DELETE_TYPE:        DELETE FROM ID CONDITIONALS;
+UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS;
+CREATE_TYPE:        CREATE TABLE ID {if ($3.size() > 64) yy::parser::error(@3, "Table name is too large");} PI CREATE_LIST PD {dr.createTable($3, $6);};
 
 /* TYPES */
-TYPE:               INT | DOUBLE | CHAR | CHAR PI NUM PD;
+TYPE:               INT {$$.first = 0;}| DOUBLE {$$.first = 1;} | CHAR {$$.first = 2; $$.second = 1;} | CHAR PI NUM PD {$$.first = 2; $$.second = $3;}| BOOL {$$.first = 3;} | DATE {$$.first = 4;}
 
 /* CONDITIONS */
 CONDITIONALS:       /*  */
@@ -78,8 +84,9 @@ SET_LIST:           SET_LIST SEP SET_UNIT | SET_UNIT;
 SET_UNIT:           ID EQUAL VALUE;
 
 /* CREATE TABLE PARAMETERS */
-CREATE_LIST:        CREATE_LIST SEP CREATE_UNIT | CREATE_UNIT;
-CREATE_UNIT:        ID TYPE; /* TODO: ADD COLUMN CONSTRAINT (PK, NULLABLE, ...) */
+CREATE_LIST:        CREATE_LIST SEP CREATE_UNIT {$$ = $1; $$.push_back($3);} | CREATE_UNIT {$$.push_back($1);}; // TODO: Optimize copy
+CREATE_UNIT:        ID TYPE { $$ = new std::tuple<std::string, std::pair<int, int>, bool>($1, $2, 0);}
+                    | ID TYPE PK { $$ = new std::tuple<std::string, std::pair<int, int>, bool>($1, $2, 1);}
 %%
 
 void yy::parser::error(const location_type &l, const std::string &message){

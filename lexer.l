@@ -21,7 +21,7 @@
 %option c++
 
 letter [a-zA-Z]
-num [0-9]
+num [0-9]*
 
 string \'[^\']*\'
 
@@ -60,6 +60,10 @@ values (?i:values)
 int (?i:int)
 double (?i:double)
 char (?i:char)
+bool (?i:bool)
+date (?i:date)
+
+pk "primary key"
 
 %%
 %{
@@ -95,6 +99,10 @@ char (?i:char)
 {int}       {return token::INT;}
 {double}    {return token::DOUBLE;}
 {char}      {return token::CHAR;}
+{bool}      {return token::BOOL;}
+{date}      {return token::DATE;}
+
+{pk}        {return token::PK;}
 
 {id}        {yylval->emplace<std::string>() = yytext; return token::ID;}
 {string}    {yylval->emplace<std::string>() = yytext; return token::STRING;}

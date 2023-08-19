@@ -4,6 +4,26 @@
 
 #include "driver.hpp"
 
+const std::string METADATA_PATH = "./meta.data";
+
+driver::driver() {
+    std::ifstream metadata(METADATA_PATH, std::ios::app | std::ios::binary);
+    if (!metadata.is_open()) {
+        std::cerr << "Can't open meta.data\n";
+        exit(EXIT_FAILURE);
+    }
+
+    // Load all tablenames in memory
+    metadata.seekg(0);
+    while(metadata.peek() != EOF) {
+        char name[64];
+        metadata.read(name, 64);
+        this->tablenames.insert(name);
+    }
+
+    metadata.close();
+}
+
 driver::~driver(){
     delete sc;
     sc = nullptr;
@@ -24,7 +44,6 @@ void driver::parse(std::istream &stream){
     if(!stream.good() && stream.eof()){
         return;
     }
-    std::cout<<"ok"<<std::endl;
     parse_helper(stream);
 }
 
@@ -61,12 +80,26 @@ void driver::del(){
 }
 
 void driver::exec(){
-    /* execute engine db */
 
-    this->table_name = "";
 }
 
-void driver::setTableName(const std::string& table) {
-    this->table_name = table;
-    std::cout << "Current table name: " << this->table_name << std::endl;
+void driver::createTable(std::string& tablename, const std::vector<std::tuple<std::string, std::pair<int, int>, bool>*>& columns) {
+    if (this->tablenames.find(tablename) != nullptr) {
+        std::cerr << "Table already exist\n";
+        exit(EXIT_FAILURE);
+    }
+    std::cout << columns.size() << std::endl;
+    this->tablenames.insert(tablename);
+    std::cout << tablename.length() << std::endl;
+
+    std::ofstream metadata(METADATA_PATH, std::ios::binary | std::ios::app);
+    metadata.seekp(0, std::ios::end);
+    metadata.write(tablename.c_str(), 64);
+    metadata.close();
+
+    std::ofstream tablefile(tablename+".bin", std::ios::app | std::ios::app);
+    for(const auto& column: columns) {
+        //tablefile.write();
+    }
+    tablefile.close();
 }
