@@ -83,7 +83,7 @@ void driver::exec(){
 
 }
 
-void driver::createTable(std::string& tablename, const std::vector<std::tuple<std::string, std::pair<int, int>, bool>*>& columns) {
+void driver::createTable(std::string& tablename, const std::vector<column_t*>& columns) {
     if (this->tablenames.find(tablename) != nullptr) {
         std::cerr << "Table already exist\n";
         exit(EXIT_FAILURE);
@@ -98,8 +98,8 @@ void driver::createTable(std::string& tablename, const std::vector<std::tuple<st
     metadata.close();
 
     std::ofstream tablefile(tablename+".bin", std::ios::app | std::ios::app);
-    for(const auto& column: columns) {
-        //tablefile.write();
+    for(auto& column: columns) {
+        tablefile.write((char*)& *column, sizeof(*column));
     }
     tablefile.close();
 }

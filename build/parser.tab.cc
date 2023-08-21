@@ -42,19 +42,18 @@
 
 
 // Unqualified %code blocks.
-#line 24 "parser.yy"
+#line 34 "parser.yy"
 
     #include <iostream>
     #include <cstdlib>
     #include <fstream>
     #include <vector>
-    #include <utility>
     #include "driver.hpp"
 
     #undef yylex
     #define yylex sc.yylex
 
-#line 58 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 57 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
 
 
 #ifndef YY_
@@ -146,7 +145,7 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 150 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 149 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
 
   /// Build a parser object.
   parser::parser (scanner &sc_yyarg, driver &dr_yyarg)
@@ -179,6 +178,10 @@ namespace yy {
   {
     switch (this->kind ())
     {
+      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
+        value.copy< column_t* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_NUM: // NUM
         value.copy< int > (YY_MOVE (that.value));
         break;
@@ -192,12 +195,8 @@ namespace yy {
         value.copy< std::string > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
-        value.copy< std::tuple<std::string, std::pair<int, int>, bool>* > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
-        value.copy< std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > (YY_MOVE (that.value));
+        value.copy< std::vector<column_t*> > (YY_MOVE (that.value));
         break;
 
       default:
@@ -231,6 +230,10 @@ namespace yy {
     super_type::move (s);
     switch (this->kind ())
     {
+      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
+        value.move< column_t* > (YY_MOVE (s.value));
+        break;
+
       case symbol_kind::S_NUM: // NUM
         value.move< int > (YY_MOVE (s.value));
         break;
@@ -244,12 +247,8 @@ namespace yy {
         value.move< std::string > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
-        value.move< std::tuple<std::string, std::pair<int, int>, bool>* > (YY_MOVE (s.value));
-        break;
-
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
-        value.move< std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > (YY_MOVE (s.value));
+        value.move< std::vector<column_t*> > (YY_MOVE (s.value));
         break;
 
       default:
@@ -353,6 +352,10 @@ namespace yy {
   {
     switch (that.kind ())
     {
+      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
+        value.YY_MOVE_OR_COPY< column_t* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_NUM: // NUM
         value.YY_MOVE_OR_COPY< int > (YY_MOVE (that.value));
         break;
@@ -366,12 +369,8 @@ namespace yy {
         value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
-        value.YY_MOVE_OR_COPY< std::tuple<std::string, std::pair<int, int>, bool>* > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
-        value.YY_MOVE_OR_COPY< std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > (YY_MOVE (that.value));
+        value.YY_MOVE_OR_COPY< std::vector<column_t*> > (YY_MOVE (that.value));
         break;
 
       default:
@@ -389,6 +388,10 @@ namespace yy {
   {
     switch (that.kind ())
     {
+      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
+        value.move< column_t* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_NUM: // NUM
         value.move< int > (YY_MOVE (that.value));
         break;
@@ -402,12 +405,8 @@ namespace yy {
         value.move< std::string > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
-        value.move< std::tuple<std::string, std::pair<int, int>, bool>* > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
-        value.move< std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > (YY_MOVE (that.value));
+        value.move< std::vector<column_t*> > (YY_MOVE (that.value));
         break;
 
       default:
@@ -425,6 +424,10 @@ namespace yy {
     state = that.state;
     switch (that.kind ())
     {
+      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
+        value.copy< column_t* > (that.value);
+        break;
+
       case symbol_kind::S_NUM: // NUM
         value.copy< int > (that.value);
         break;
@@ -438,12 +441,8 @@ namespace yy {
         value.copy< std::string > (that.value);
         break;
 
-      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
-        value.copy< std::tuple<std::string, std::pair<int, int>, bool>* > (that.value);
-        break;
-
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
-        value.copy< std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > (that.value);
+        value.copy< std::vector<column_t*> > (that.value);
         break;
 
       default:
@@ -460,6 +459,10 @@ namespace yy {
     state = that.state;
     switch (that.kind ())
     {
+      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
+        value.move< column_t* > (that.value);
+        break;
+
       case symbol_kind::S_NUM: // NUM
         value.move< int > (that.value);
         break;
@@ -473,12 +476,8 @@ namespace yy {
         value.move< std::string > (that.value);
         break;
 
-      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
-        value.move< std::tuple<std::string, std::pair<int, int>, bool>* > (that.value);
-        break;
-
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
-        value.move< std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > (that.value);
+        value.move< std::vector<column_t*> > (that.value);
         break;
 
       default:
@@ -739,6 +738,10 @@ namespace yy {
          when using variants.  */
       switch (yyr1_[yyn])
     {
+      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
+        yylhs.value.emplace< column_t* > ();
+        break;
+
       case symbol_kind::S_NUM: // NUM
         yylhs.value.emplace< int > ();
         break;
@@ -752,12 +755,8 @@ namespace yy {
         yylhs.value.emplace< std::string > ();
         break;
 
-      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
-        yylhs.value.emplace< std::tuple<std::string, std::pair<int, int>, bool>* > ();
-        break;
-
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
-        yylhs.value.emplace< std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > ();
+        yylhs.value.emplace< std::vector<column_t*> > ();
         break;
 
       default:
@@ -781,85 +780,85 @@ namespace yy {
           switch (yyn)
             {
   case 3: // $@1: %empty
-#line 52 "parser.yy"
+#line 61 "parser.yy"
                                     {dr.exec();}
-#line 787 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 786 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 18: // $@2: %empty
-#line 65 "parser.yy"
+#line 74 "parser.yy"
                                     {if (yystack_[0].value.as < std::string > ().size() > 64) yy::parser::error(yystack_[0].location, "Table name is too large");}
-#line 793 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 792 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 19: // CREATE_TYPE: CREATE TABLE ID $@2 PI CREATE_LIST PD
-#line 65 "parser.yy"
-                                                                                                                              {dr.createTable(yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > ());}
-#line 799 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 74 "parser.yy"
+                                                                                                                              {dr.createTable(yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::vector<column_t*> > ());}
+#line 798 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 20: // TYPE: INT
-#line 68 "parser.yy"
+#line 77 "parser.yy"
                         {yylhs.value.as < std::pair<int, int> > ().first = 0;}
-#line 805 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 804 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 21: // TYPE: DOUBLE
-#line 68 "parser.yy"
+#line 77 "parser.yy"
                                                 {yylhs.value.as < std::pair<int, int> > ().first = 1;}
-#line 811 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 810 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 22: // TYPE: CHAR
-#line 68 "parser.yy"
+#line 77 "parser.yy"
                                                                        {yylhs.value.as < std::pair<int, int> > ().first = 2; yylhs.value.as < std::pair<int, int> > ().second = 1;}
-#line 817 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 816 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 23: // TYPE: CHAR PI NUM PD
-#line 68 "parser.yy"
+#line 77 "parser.yy"
                                                                                                                        {yylhs.value.as < std::pair<int, int> > ().first = 2; yylhs.value.as < std::pair<int, int> > ().second = yystack_[1].value.as < int > ();}
-#line 823 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 822 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 24: // TYPE: BOOL
-#line 68 "parser.yy"
+#line 77 "parser.yy"
                                                                                                                                                              {yylhs.value.as < std::pair<int, int> > ().first = 3;}
-#line 829 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 828 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 25: // TYPE: DATE
-#line 68 "parser.yy"
+#line 77 "parser.yy"
                                                                                                                                                                                     {yylhs.value.as < std::pair<int, int> > ().first = 4;}
-#line 835 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 834 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 39: // CREATE_LIST: CREATE_LIST SEP CREATE_UNIT
-#line 87 "parser.yy"
-                                                {yylhs.value.as < std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > () = yystack_[2].value.as < std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > (); yylhs.value.as < std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > ().push_back(yystack_[0].value.as < std::tuple<std::string, std::pair<int, int>, bool>* > ());}
-#line 841 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 96 "parser.yy"
+                                                {yylhs.value.as < std::vector<column_t*> > () = yystack_[2].value.as < std::vector<column_t*> > (); yylhs.value.as < std::vector<column_t*> > ().push_back(yystack_[0].value.as < column_t* > ());}
+#line 840 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 40: // CREATE_LIST: CREATE_UNIT
-#line 87 "parser.yy"
-                                                                                           {yylhs.value.as < std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > ().push_back(yystack_[0].value.as < std::tuple<std::string, std::pair<int, int>, bool>* > ());}
-#line 847 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 96 "parser.yy"
+                                                                                           {yylhs.value.as < std::vector<column_t*> > ().push_back(yystack_[0].value.as < column_t* > ());}
+#line 846 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 41: // CREATE_UNIT: ID TYPE
-#line 88 "parser.yy"
-                            { yylhs.value.as < std::tuple<std::string, std::pair<int, int>, bool>* > () = new std::tuple<std::string, std::pair<int, int>, bool>(yystack_[1].value.as < std::string > (), yystack_[0].value.as < std::pair<int, int> > (), 0);}
-#line 853 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 97 "parser.yy"
+                            { yylhs.value.as < column_t* > () = new column_t(yystack_[1].value.as < std::string > (), yystack_[0].value.as < std::pair<int, int> > (), 0);}
+#line 852 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
   case 42: // CREATE_UNIT: ID TYPE PK
-#line 89 "parser.yy"
-                                 { yylhs.value.as < std::tuple<std::string, std::pair<int, int>, bool>* > () = new std::tuple<std::string, std::pair<int, int>, bool>(yystack_[2].value.as < std::string > (), yystack_[1].value.as < std::pair<int, int> > (), 1);}
-#line 859 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 98 "parser.yy"
+                                 { yylhs.value.as < column_t* > () = new column_t(yystack_[2].value.as < std::string > (), yystack_[1].value.as < std::pair<int, int> > (), 1);}
+#line 858 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
 
-#line 863 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 862 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
 
             default:
               break;
@@ -1179,11 +1178,11 @@ namespace yy {
   const signed char
   parser::yyrline_[] =
   {
-       0,    51,    51,    52,    52,    54,    54,    54,    54,    56,
-      56,    57,    57,    58,    58,    62,    63,    64,    65,    65,
-      68,    68,    68,    68,    68,    68,    71,    72,    74,    74,
-      75,    75,    77,    78,    79,    80,    83,    83,    84,    87,
-      87,    88,    89
+       0,    60,    60,    61,    61,    63,    63,    63,    63,    65,
+      65,    66,    66,    67,    67,    71,    72,    73,    74,    74,
+      77,    77,    77,    77,    77,    77,    80,    81,    83,    83,
+      84,    84,    86,    87,    88,    89,    92,    92,    93,    96,
+      96,    97,    98
   };
 
   void
@@ -1264,9 +1263,9 @@ namespace yy {
   }
 
 } // yy
-#line 1268 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 1267 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
 
-#line 90 "parser.yy"
+#line 99 "parser.yy"
 
 
 void yy::parser::error(const location_type &l, const std::string &message){

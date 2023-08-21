@@ -9,6 +9,8 @@
 #include "scanner.hpp"
 #include "parser.tab.hh"
 
+struct column_t;
+
 class driver{
 public:
     driver();
@@ -22,7 +24,7 @@ public:
     void insert();
     void del();
     void exec();
-    void createTable(std::string& tablename, const std::vector<std::tuple<std::string, std::pair<int, int>, bool>*>& columns);
+    void createTable(std::string& tablename, const std::vector<column_t*>& columns);
 private:
     void parse_helper(std::istream &stream);
     std::unordered_set<std::string> tablenames;

@@ -147,6 +147,7 @@ CMakeFiles/my_wc.dir/lexer.yy.cc.o: \
  /usr/include/string.h /usr/include/strings.h /usr/include/FlexLexer.h \
  /home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/scanner.hpp \
  /home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh \
+ /usr/include/c++/11/utility /usr/include/c++/11/bits/stl_relops.h \
  /usr/include/c++/11/cassert /usr/include/assert.h \
  /usr/include/c++/11/vector /usr/include/c++/11/bits/stl_uninitialized.h \
  /usr/include/c++/11/bits/stl_vector.h \

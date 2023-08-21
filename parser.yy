@@ -4,6 +4,16 @@
 %define api.parser.class {parser}
 
 %code requires{
+    #include <string>
+    #include <utility>
+
+    struct column_t {
+        std::string name;
+        std::pair<int, int> type;
+        bool is_pk;
+        column_t(const std::string& name, const std::pair<int, int>& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
+    };
+
     class driver;
     class scanner;
 
@@ -26,7 +36,6 @@
     #include <cstdlib>
     #include <fstream>
     #include <vector>
-    #include <utility>
     #include "driver.hpp"
 
     #undef yylex
@@ -41,8 +50,8 @@
 %token <std::string> STRING
 %token <std::string> ID
 %token <int> NUM
-%type <std::vector<std::tuple<std::string, std::pair<int, int>, bool>*>> CREATE_LIST
-%type <std::tuple<std::string, std::pair<int, int>, bool>*> CREATE_UNIT
+%type <std::vector<column_t*>> CREATE_LIST
+%type <column_t*> CREATE_UNIT
 %type <std::pair<int, int>> TYPE
 %locations
 
@@ -85,8 +94,8 @@ SET_UNIT:           ID EQUAL VALUE;
 
 /* CREATE TABLE PARAMETERS */
 CREATE_LIST:        CREATE_LIST SEP CREATE_UNIT {$$ = $1; $$.push_back($3);} | CREATE_UNIT {$$.push_back($1);}; // TODO: Optimize copy
-CREATE_UNIT:        ID TYPE { $$ = new std::tuple<std::string, std::pair<int, int>, bool>($1, $2, 0);}
-                    | ID TYPE PK { $$ = new std::tuple<std::string, std::pair<int, int>, bool>($1, $2, 1);}
+CREATE_UNIT:        ID TYPE { $$ = new column_t($1, $2, 0);}
+                    | ID TYPE PK { $$ = new column_t($1, $2, 1);}
 %%
 
 void yy::parser::error(const location_type &l, const std::string &message){

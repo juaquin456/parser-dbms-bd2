@@ -47,6 +47,16 @@
 // "%code requires" blocks.
 #line 6 "parser.yy"
 
+    #include <string>
+    #include <utility>
+
+    struct column_t {
+        std::string name;
+        std::pair<int, int> type;
+        bool is_pk;
+        column_t(const std::string& name, const std::pair<int, int>& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
+    };
+
     class driver;
     class scanner;
 
@@ -60,7 +70,7 @@
     #endif
 
 
-#line 64 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
+#line 74 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -200,7 +210,7 @@
 #endif
 
 namespace yy {
-#line 204 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
+#line 214 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
 
 
 
@@ -419,21 +429,21 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
+      // CREATE_UNIT
+      char dummy1[sizeof (column_t*)];
+
       // NUM
-      char dummy1[sizeof (int)];
+      char dummy2[sizeof (int)];
 
       // TYPE
-      char dummy2[sizeof (std::pair<int, int>)];
+      char dummy3[sizeof (std::pair<int, int>)];
 
       // STRING
       // ID
-      char dummy3[sizeof (std::string)];
-
-      // CREATE_UNIT
-      char dummy4[sizeof (std::tuple<std::string, std::pair<int, int>, bool>*)];
+      char dummy4[sizeof (std::string)];
 
       // CREATE_LIST
-      char dummy5[sizeof (std::vector<std::tuple<std::string, std::pair<int, int>, bool>*>)];
+      char dummy5[sizeof (std::vector<column_t*>)];
     };
 
     /// The size of the largest semantic type.
@@ -625,6 +635,10 @@ namespace yy {
       {
         switch (this->kind ())
     {
+      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
+        value.move< column_t* > (std::move (that.value));
+        break;
+
       case symbol_kind::S_NUM: // NUM
         value.move< int > (std::move (that.value));
         break;
@@ -638,12 +652,8 @@ namespace yy {
         value.move< std::string > (std::move (that.value));
         break;
 
-      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
-        value.move< std::tuple<std::string, std::pair<int, int>, bool>* > (std::move (that.value));
-        break;
-
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
-        value.move< std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > (std::move (that.value));
+        value.move< std::vector<column_t*> > (std::move (that.value));
         break;
 
       default:
@@ -665,6 +675,20 @@ namespace yy {
 #else
       basic_symbol (typename Base::kind_type t, const location_type& l)
         : Base (t)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, column_t*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const column_t*& v, const location_type& l)
+        : Base (t)
+        , value (v)
         , location (l)
       {}
 #endif
@@ -712,27 +736,13 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::tuple<std::string, std::pair<int, int>, bool>*&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, std::vector<column_t*>&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const std::tuple<std::string, std::pair<int, int>, bool>*& v, const location_type& l)
-        : Base (t)
-        , value (v)
-        , location (l)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::vector<std::tuple<std::string, std::pair<int, int>, bool>*>&& v, location_type&& l)
-        : Base (t)
-        , value (std::move (v))
-        , location (std::move (l))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::vector<std::tuple<std::string, std::pair<int, int>, bool>*>& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const std::vector<column_t*>& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -763,6 +773,10 @@ namespace yy {
         // Value type destructor.
 switch (yykind)
     {
+      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
+        value.template destroy< column_t* > ();
+        break;
+
       case symbol_kind::S_NUM: // NUM
         value.template destroy< int > ();
         break;
@@ -776,12 +790,8 @@ switch (yykind)
         value.template destroy< std::string > ();
         break;
 
-      case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
-        value.template destroy< std::tuple<std::string, std::pair<int, int>, bool>* > ();
-        break;
-
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
-        value.template destroy< std::vector<std::tuple<std::string, std::pair<int, int>, bool>*> > ();
+        value.template destroy< std::vector<column_t*> > ();
         break;
 
       default:
@@ -1776,7 +1786,7 @@ switch (yykind)
 
 
 } // yy
-#line 1780 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
+#line 1790 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
 
 
 
