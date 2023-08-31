@@ -1,4 +1,0 @@
-/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/CPP/cmake-build-debug/CMakeFiles/my_wc.dir
-/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/CPP/cmake-build-debug/CMakeFiles/test.dir
-/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/CPP/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/CPP/cmake-build-debug/CMakeFiles/rebuild_cache.dir
