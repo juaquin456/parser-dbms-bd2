@@ -2,7 +2,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "driver.hpp"
+#include "SqlParser.hpp"
 
 int main(const int argc, const char **argv) {
   /** instantiate driver object **/

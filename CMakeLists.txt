@@ -1,22 +1,72 @@
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-register")
+cmake_minimum_required(VERSION 3.26)
 
-project(simple_wc_example CXX)
+project(
+  SqlParser
+  VERSION 1.0
+  DESCRIPTION "A simple sql parser made in c++"
+  LANGUAGES CXX)
 
-cmake_minimum_required(VERSION 3.1)
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
+# Dynamically Generating headers? (not sure if this is the best way to do it)
+# Doesnt seems like its fetching anything
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
-
 bison_target(parser parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.tab.cc)
 flex_target(lexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.yy.cc)
 add_flex_bison_dependency(lexer parser)
 
-add_executable(my_wc main.cpp driver.cpp ${FLEX_lexer_OUTPUTS}
-                     ${BISON_parser_OUTPUTS})
+add_executable(sql_parser main.cpp)
+target_compile_features(sql_parser PRIVATE cxx_std_20)
+
+# Additional files to be compiled
+target_sources(sql_parser PRIVATE SqlParser.cpp ${FLEX_lexer_OUTPUTS}
+                                  ${BISON_parser_OUTPUTS})
+
 target_include_directories(
-  my_wc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${FLEX_INCLUDE_DIRS}
-                ${CMAKE_CURRENT_BINARY_DIR})
-set_property(TARGET my_wc PROPERTY CXX_STANDARD 14)
+  sql_parser PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${FLEX_INCLUDE_DIRS}
+                     ${CMAKE_CURRENT_BINARY_DIR})
+
+target_compile_options(
+  sql_parser
+  PRIVATE
+    # Prefered warnings
+    $<$<CXX_COMPILER_ID:MSVC>:/W4
+    /WX>
+    $<$<CXX_COMPILER_ID:Clang>:-Weverything>
+    $<$<CXX_COMPILER_ID:GCC>:-Wall
+    -Wextra
+    -Wpedantic
+    -Wformat=2
+    -Wno-unused-parameter
+    -Wshadow
+    -Wwrite-strings
+    -Wcast-qual
+    -Wcast-align
+    -Wconversion
+    -Werror>
+    # Disable some warnings
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-deprecated-register> # WHY?
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat-pedantic>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++20-compat>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-zero-as-null-pointer-constant> # Solves a
+                                                                         # bug,
+                                                                         # forgot
+                                                                         # which one
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-error=padded>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize-address-use-after-scope>
+    $<$<CONFIG:RELEASE>:-Ofast>
+    $<$<CONFIG:DEBUG>:-O0>
+    $<$<CONFIG:DEBUG>:-ggdb3>
+    "-fsanitize=address,undefined")
+
+target_link_options(
+  sql_parser PRIVATE
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>)
+
+# Wht kind of tests are these?
 enable_testing()
 add_test(
   NAME basic

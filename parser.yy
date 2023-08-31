@@ -36,7 +36,7 @@
     #include <cstdlib>
     #include <fstream>
     #include <vector>
-    #include "driver.hpp"
+    #include "SqlParser.hpp"
 
     #undef yylex
     #define yylex sc.yylex
