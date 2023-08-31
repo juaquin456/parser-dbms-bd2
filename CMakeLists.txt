@@ -16,16 +16,16 @@ bison_target(parser parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.tab.cc)
 flex_target(lexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.yy.cc)
 add_flex_bison_dependency(lexer parser)
 
-add_executable(sql_parser main.cpp)
+add_library(sql_parser SqlParser.cpp)
+
 target_compile_features(sql_parser PRIVATE cxx_std_20)
 
 # Additional files to be compiled
-target_sources(sql_parser PRIVATE SqlParser.cpp ${FLEX_lexer_OUTPUTS}
-                                  ${BISON_parser_OUTPUTS})
+target_sources(sql_parser PRIVATE ${FLEX_lexer_OUTPUTS} ${BISON_parser_OUTPUTS})
 
 target_include_directories(
-  sql_parser PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${FLEX_INCLUDE_DIRS}
-                     ${CMAKE_CURRENT_BINARY_DIR})
+  sql_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${FLEX_INCLUDE_DIRS}
+                    ${CMAKE_CURRENT_BINARY_DIR})
 
 target_compile_options(
   sql_parser
