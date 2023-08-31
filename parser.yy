@@ -9,9 +9,9 @@
 
     struct column_t {
         std::string name;
-        std::pair<int, int> type;
+        std::pair<char, int> type;
         bool is_pk;
-        column_t(const std::string& name, const std::pair<int, int>& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
+        column_t(const std::string& name, const std::pair<char, int>& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
     };
 
     class driver;
@@ -46,10 +46,13 @@
 %define parse.assert
 
 %token ENDL SEP INSERT UPDATE DELETE SELECT CREATE FROM INTO SET VALUES WHERE AND OR EQUAL RANGE_OPERATOR TABLE INDEX COLUMN PI PD PK
-%token INT DOUBLE CHAR BOOL DATE
+%token INT DOUBLE CHAR BOOL
 %token <std::string> STRING
 %token <std::string> ID
 %token <int> NUM
+
+%type <std::vector<std::string>*> COLUMNS
+
 %type <std::vector<column_t*>> CREATE_LIST
 %type <column_t*> CREATE_UNIT
 %type <std::pair<int, int>> TYPE
@@ -60,7 +63,7 @@
 PROGRAM:            /*  */
                     | SENTENCE ENDL {dr.exec();} PROGRAM;
 
-SENTENCE:           INSERT_TYPE | DELETE_TYPE | UPDATE_TYPE | CREATE_TYPE;
+SENTENCE:           INSERT_TYPE | DELETE_TYPE | UPDATE_TYPE | CREATE_TYPE | SELECT_TYPE;
 
 INPLACE_VALUE:          STRING | NUM;
 VALUE:               ID | INPLACE_VALUE;
@@ -71,10 +74,14 @@ PARAMS:         INPLACE_VALUE SEP PARAMS | INPLACE_VALUE;
 INSERT_TYPE:        INSERT INTO ID VALUES PI PARAMS PD;
 DELETE_TYPE:        DELETE FROM ID CONDITIONALS;
 UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS;
-CREATE_TYPE:        CREATE TABLE ID {if ($3.size() > 64) yy::parser::error(@3, "Table name is too large");} PI CREATE_LIST PD {dr.createTable($3, $6);};
+CREATE_TYPE:        CREATE TABLE ID {if ($3.size() > 64) yy::parser::error(@3, "Table name is too large");} PI CREATE_LIST PD {dr.createTable($3, $6);}
+SELECT_TYPE:        SELECT COLUMNS FROM ID CONDITIONALS {dr.select($4, $2);}
 
 /* TYPES */
-TYPE:               INT {$$.first = 0;}| DOUBLE {$$.first = 1;} | CHAR {$$.first = 2; $$.second = 1;} | CHAR PI NUM PD {$$.first = 2; $$.second = $3;}| BOOL {$$.first = 3;} | DATE {$$.first = 4;}
+TYPE:               INT {$$.first = 0;}| DOUBLE {$$.first = 1;} | CHAR {$$.first = 2; $$.second = 1;} | CHAR PI NUM PD {$$.first = 2; $$.second = $3;}| BOOL {$$.first = 3;}
+
+/* COLUMN NAMES */
+COLUMNS:            COLUMNS SEP ID {$1->push_back($3); $$ = $1;} | ID {$$ = new std::vector<std::string>{$1};}
 
 /* CONDITIONS */
 CONDITIONALS:       /*  */

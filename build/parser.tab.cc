@@ -199,6 +199,10 @@ namespace yy {
         value.copy< std::vector<column_t*> > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_COLUMNS: // COLUMNS
+        value.copy< std::vector<std::string>* > (YY_MOVE (that.value));
+        break;
+
       default:
         break;
     }
@@ -249,6 +253,10 @@ namespace yy {
 
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
         value.move< std::vector<column_t*> > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_COLUMNS: // COLUMNS
+        value.move< std::vector<std::string>* > (YY_MOVE (s.value));
         break;
 
       default:
@@ -373,6 +381,10 @@ namespace yy {
         value.YY_MOVE_OR_COPY< std::vector<column_t*> > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_COLUMNS: // COLUMNS
+        value.YY_MOVE_OR_COPY< std::vector<std::string>* > (YY_MOVE (that.value));
+        break;
+
       default:
         break;
     }
@@ -407,6 +419,10 @@ namespace yy {
 
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
         value.move< std::vector<column_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_COLUMNS: // COLUMNS
+        value.move< std::vector<std::string>* > (YY_MOVE (that.value));
         break;
 
       default:
@@ -445,6 +461,10 @@ namespace yy {
         value.copy< std::vector<column_t*> > (that.value);
         break;
 
+      case symbol_kind::S_COLUMNS: // COLUMNS
+        value.copy< std::vector<std::string>* > (that.value);
+        break;
+
       default:
         break;
     }
@@ -478,6 +498,10 @@ namespace yy {
 
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
         value.move< std::vector<column_t*> > (that.value);
+        break;
+
+      case symbol_kind::S_COLUMNS: // COLUMNS
+        value.move< std::vector<std::string>* > (that.value);
         break;
 
       default:
@@ -759,6 +783,10 @@ namespace yy {
         yylhs.value.emplace< std::vector<column_t*> > ();
         break;
 
+      case symbol_kind::S_COLUMNS: // COLUMNS
+        yylhs.value.emplace< std::vector<std::string>* > ();
+        break;
+
       default:
         break;
     }
@@ -780,85 +808,97 @@ namespace yy {
           switch (yyn)
             {
   case 3: // $@1: %empty
-#line 61 "parser.yy"
+#line 64 "parser.yy"
                                     {dr.exec();}
-#line 786 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 814 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 18: // $@2: %empty
-#line 74 "parser.yy"
+  case 19: // $@2: %empty
+#line 77 "parser.yy"
                                     {if (yystack_[0].value.as < std::string > ().size() > 64) yy::parser::error(yystack_[0].location, "Table name is too large");}
-#line 792 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 820 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 19: // CREATE_TYPE: CREATE TABLE ID $@2 PI CREATE_LIST PD
-#line 74 "parser.yy"
+  case 20: // CREATE_TYPE: CREATE TABLE ID $@2 PI CREATE_LIST PD
+#line 77 "parser.yy"
                                                                                                                               {dr.createTable(yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::vector<column_t*> > ());}
-#line 798 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 826 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 20: // TYPE: INT
-#line 77 "parser.yy"
+  case 21: // SELECT_TYPE: SELECT COLUMNS FROM ID CONDITIONALS
+#line 78 "parser.yy"
+                                                        {dr.select(yystack_[1].value.as < std::string > (), yystack_[3].value.as < std::vector<std::string>* > ());}
+#line 832 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+    break;
+
+  case 22: // TYPE: INT
+#line 81 "parser.yy"
                         {yylhs.value.as < std::pair<int, int> > ().first = 0;}
-#line 804 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 838 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 21: // TYPE: DOUBLE
-#line 77 "parser.yy"
+  case 23: // TYPE: DOUBLE
+#line 81 "parser.yy"
                                                 {yylhs.value.as < std::pair<int, int> > ().first = 1;}
-#line 810 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 844 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 22: // TYPE: CHAR
-#line 77 "parser.yy"
+  case 24: // TYPE: CHAR
+#line 81 "parser.yy"
                                                                        {yylhs.value.as < std::pair<int, int> > ().first = 2; yylhs.value.as < std::pair<int, int> > ().second = 1;}
-#line 816 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 850 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 23: // TYPE: CHAR PI NUM PD
-#line 77 "parser.yy"
+  case 25: // TYPE: CHAR PI NUM PD
+#line 81 "parser.yy"
                                                                                                                        {yylhs.value.as < std::pair<int, int> > ().first = 2; yylhs.value.as < std::pair<int, int> > ().second = yystack_[1].value.as < int > ();}
-#line 822 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 856 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
     break;
 
-  case 24: // TYPE: BOOL
-#line 77 "parser.yy"
+  case 26: // TYPE: BOOL
+#line 81 "parser.yy"
                                                                                                                                                              {yylhs.value.as < std::pair<int, int> > ().first = 3;}
-#line 828 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
-    break;
-
-  case 25: // TYPE: DATE
-#line 77 "parser.yy"
-                                                                                                                                                                                    {yylhs.value.as < std::pair<int, int> > ().first = 4;}
-#line 834 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
-    break;
-
-  case 39: // CREATE_LIST: CREATE_LIST SEP CREATE_UNIT
-#line 96 "parser.yy"
-                                                {yylhs.value.as < std::vector<column_t*> > () = yystack_[2].value.as < std::vector<column_t*> > (); yylhs.value.as < std::vector<column_t*> > ().push_back(yystack_[0].value.as < column_t* > ());}
-#line 840 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
-    break;
-
-  case 40: // CREATE_LIST: CREATE_UNIT
-#line 96 "parser.yy"
-                                                                                           {yylhs.value.as < std::vector<column_t*> > ().push_back(yystack_[0].value.as < column_t* > ());}
-#line 846 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
-    break;
-
-  case 41: // CREATE_UNIT: ID TYPE
-#line 97 "parser.yy"
-                            { yylhs.value.as < column_t* > () = new column_t(yystack_[1].value.as < std::string > (), yystack_[0].value.as < std::pair<int, int> > (), 0);}
-#line 852 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
-    break;
-
-  case 42: // CREATE_UNIT: ID TYPE PK
-#line 98 "parser.yy"
-                                 { yylhs.value.as < column_t* > () = new column_t(yystack_[2].value.as < std::string > (), yystack_[1].value.as < std::pair<int, int> > (), 1);}
-#line 858 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
-    break;
-
-
 #line 862 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+    break;
+
+  case 27: // COLUMNS: COLUMNS SEP ID
+#line 84 "parser.yy"
+                                   {yystack_[2].value.as < std::vector<std::string>* > ()->push_back(yystack_[0].value.as < std::string > ()); yylhs.value.as < std::vector<std::string>* > () = yystack_[2].value.as < std::vector<std::string>* > ();}
+#line 868 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+    break;
+
+  case 28: // COLUMNS: ID
+#line 84 "parser.yy"
+                                                                      {yylhs.value.as < std::vector<std::string>* > () = new std::vector<std::string>{yystack_[0].value.as < std::string > ()};}
+#line 874 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+    break;
+
+  case 42: // CREATE_LIST: CREATE_LIST SEP CREATE_UNIT
+#line 103 "parser.yy"
+                                                {yylhs.value.as < std::vector<column_t*> > () = yystack_[2].value.as < std::vector<column_t*> > (); yylhs.value.as < std::vector<column_t*> > ().push_back(yystack_[0].value.as < column_t* > ());}
+#line 880 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+    break;
+
+  case 43: // CREATE_LIST: CREATE_UNIT
+#line 103 "parser.yy"
+                                                                                           {yylhs.value.as < std::vector<column_t*> > ().push_back(yystack_[0].value.as < column_t* > ());}
+#line 886 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+    break;
+
+  case 44: // CREATE_UNIT: ID TYPE
+#line 104 "parser.yy"
+                            { yylhs.value.as < column_t* > () = new column_t(yystack_[1].value.as < std::string > (), yystack_[0].value.as < std::pair<int, int> > (), 0);}
+#line 892 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+    break;
+
+  case 45: // CREATE_UNIT: ID TYPE PK
+#line 105 "parser.yy"
+                                 { yylhs.value.as < column_t* > () = new column_t(yystack_[2].value.as < std::string > (), yystack_[1].value.as < std::pair<int, int> > (), 1);}
+#line 898 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+    break;
+
+
+#line 902 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
 
             default:
               break;
@@ -1051,107 +1091,112 @@ namespace yy {
 
 
 
-  const signed char parser::yypact_ninf_ = -32;
+  const signed char parser::yypact_ninf_ = -40;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const signed char
   parser::yypact_[] =
   {
-       5,     9,   -22,    15,    10,    33,    31,   -32,   -32,   -32,
-     -32,     4,    24,     6,     7,   -32,   -32,    26,    11,    29,
-     -32,     5,    18,    27,    -1,   -32,   -15,   -32,    23,   -32,
-      -4,    -8,    11,   -32,   -32,    30,   -32,   -32,    28,    34,
-      32,   -32,   -32,    19,    47,    35,   -32,   -32,   -32,    -8,
-       0,   -15,   -15,   -21,    -2,   -32,    -4,   -32,   -32,    36,
-     -32,    32,   -32,   -32,   -32,    37,   -32,   -32,    38,    19,
-     -32,   -32,    -8,    20,   -32,   -32,   -32,    40,   -32
+       9,    -6,   -18,    16,    10,     8,    29,    34,   -40,   -40,
+     -40,   -40,   -40,    12,    27,    13,   -40,     0,    14,   -40,
+     -40,    32,    17,    35,    18,    20,   -40,     9,    24,    36,
+      -1,   -40,   -22,   -40,   -40,    35,    30,   -40,     7,     1,
+      17,   -40,   -40,    37,   -40,   -40,    33,    40,    41,   -40,
+     -40,   -40,    26,    54,    38,   -40,   -40,   -40,     1,     4,
+     -22,   -22,    -3,    -2,   -40,     7,   -40,   -40,    42,   -40,
+      41,   -40,   -40,   -40,    43,   -40,    39,    26,   -40,   -40,
+       1,    28,   -40,   -40,   -40,    44,   -40
   };
 
   const signed char
   parser::yydefact_[] =
   {
-       2,     0,     0,     0,     0,     0,     0,     5,     6,     7,
-       8,     0,     0,     0,     0,     1,     3,     0,     0,    26,
-      18,     2,     0,     0,    26,    37,     0,    16,     0,     4,
-       0,     0,     0,    17,     9,    11,    10,    12,     0,    27,
-      29,    31,    33,     0,    14,     0,    11,    38,    36,     0,
-       0,     0,     0,     0,     0,    40,     0,    15,    32,    11,
-      35,    28,    30,    20,    21,    22,    24,    25,    41,     0,
-      19,    13,     0,     0,    42,    39,    34,     0,    23
+       2,     0,     0,     0,     0,     0,     0,     0,     5,     6,
+       7,     8,     9,     0,     0,     0,    28,     0,     0,     1,
+       3,     0,     0,    29,     0,     0,    19,     2,     0,     0,
+      29,    40,     0,    17,    27,    29,     0,     4,     0,     0,
+       0,    18,    10,    12,    11,    13,     0,    30,    32,    34,
+      36,    21,     0,    15,     0,    12,    41,    39,     0,     0,
+       0,     0,     0,     0,    43,     0,    16,    35,    12,    38,
+      31,    33,    22,    23,    24,    26,    44,     0,    20,    14,
+       0,     0,    45,    42,    37,     0,    25
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-     -32,    39,   -32,   -32,   -29,   -31,    -3,   -32,   -32,   -32,
-     -32,   -32,   -32,    41,   -32,    13,     3,   -32,   -32,    25,
-     -32,   -13
+     -40,    45,   -40,   -40,   -37,   -39,     3,   -40,   -40,   -40,
+     -40,   -40,   -40,   -40,   -40,   -24,   -40,     2,     5,   -40,
+     -40,    31,   -40,   -13
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-       0,     5,    21,     6,    37,    38,    45,     7,     8,     9,
-      10,    28,    68,    27,    39,    40,    41,    42,    24,    25,
-      54,    55
+       0,     6,    27,     7,    45,    46,    54,     8,     9,    10,
+      11,    36,    12,    76,    17,    33,    47,    48,    49,    50,
+      30,    31,    63,    64
   };
 
   const signed char
   parser::yytable_[] =
   {
-      47,    44,    69,    32,    63,    64,    65,    66,    67,    12,
-       1,     2,     3,    26,     4,    34,    35,    36,    58,    60,
-      11,    70,    34,    46,    36,    13,    34,    44,    36,    14,
-      34,    59,    36,    15,    16,    17,    18,    19,    20,    22,
-      30,    76,    23,    26,    31,    43,    50,    49,    52,    51,
-      53,    56,    77,    71,    72,    62,    75,    48,    57,    73,
-      29,     0,    74,    78,    61,    33
+      56,    53,    77,    40,    24,    13,    41,    42,    43,    44,
+      25,    51,    14,    32,     1,     2,     3,     4,     5,    67,
+      69,    78,    72,    73,    74,    75,    15,    18,    53,    19,
+      42,    55,    44,    42,    68,    44,    42,    20,    44,    22,
+      16,    84,    21,    23,    26,    28,    38,    29,    34,    32,
+      35,    59,    52,    39,    58,    60,    62,    61,    65,    85,
+      80,    66,    70,    82,    83,    81,    71,    86,    79,     0,
+       0,    57,    37
   };
 
   const signed char
   parser::yycheck_[] =
   {
-      31,    30,     4,     4,    25,    26,    27,    28,    29,    31,
-       5,     6,     7,    14,     9,    30,    31,    32,    49,    50,
-      11,    23,    30,    31,    32,    10,    30,    56,    32,    19,
-      30,    31,    32,     0,     3,    31,    12,    31,    31,    13,
-      22,    72,    31,    14,    17,    22,    18,    17,    16,    15,
-      31,     4,    32,    56,    18,    52,    69,    32,    23,    22,
-      21,    -1,    24,    23,    51,    24
+      39,    38,     4,     4,     4,    11,    30,    29,    30,    31,
+      10,    35,    30,    14,     5,     6,     7,     8,     9,    58,
+      59,    23,    25,    26,    27,    28,    10,    19,    65,     0,
+      29,    30,    31,    29,    30,    31,    29,     3,    31,    12,
+      30,    80,    30,    30,    30,    13,    22,    30,    30,    14,
+      30,    18,    22,    17,    17,    15,    30,    16,     4,    31,
+      18,    23,    60,    24,    77,    22,    61,    23,    65,    -1,
+      -1,    40,    27
   };
 
   const signed char
   parser::yystos_[] =
   {
-       0,     5,     6,     7,     9,    34,    36,    40,    41,    42,
-      43,    11,    31,    10,    19,     0,     3,    31,    12,    31,
-      31,    35,    13,    31,    51,    52,    14,    46,    44,    34,
-      22,    17,     4,    46,    30,    31,    32,    37,    38,    47,
-      48,    49,    50,    22,    37,    39,    31,    38,    52,    17,
-      18,    15,    16,    31,    53,    54,     4,    23,    38,    31,
-      38,    48,    49,    25,    26,    27,    28,    29,    45,     4,
-      23,    39,    18,    22,    24,    54,    38,    32,    23
+       0,     5,     6,     7,     8,     9,    33,    35,    39,    40,
+      41,    42,    44,    11,    30,    10,    30,    46,    19,     0,
+       3,    30,    12,    30,     4,    10,    30,    34,    13,    30,
+      52,    53,    14,    47,    30,    30,    43,    33,    22,    17,
+       4,    47,    29,    30,    31,    36,    37,    48,    49,    50,
+      51,    47,    22,    36,    38,    30,    37,    53,    17,    18,
+      15,    16,    30,    54,    55,     4,    23,    37,    30,    37,
+      49,    50,    25,    26,    27,    28,    45,     4,    23,    38,
+      18,    22,    24,    55,    37,    31,    23
   };
 
   const signed char
   parser::yyr1_[] =
   {
-       0,    33,    34,    35,    34,    36,    36,    36,    36,    37,
-      37,    38,    38,    39,    39,    40,    41,    42,    44,    43,
-      45,    45,    45,    45,    45,    45,    46,    46,    47,    47,
-      48,    48,    49,    49,    50,    50,    51,    51,    52,    53,
-      53,    54,    54
+       0,    32,    33,    34,    33,    35,    35,    35,    35,    35,
+      36,    36,    37,    37,    38,    38,    39,    40,    41,    43,
+      42,    44,    45,    45,    45,    45,    45,    46,    46,    47,
+      47,    48,    48,    49,    49,    50,    50,    51,    51,    52,
+      52,    53,    54,    54,    55,    55
   };
 
   const signed char
   parser::yyr2_[] =
   {
        0,     2,     0,     0,     4,     1,     1,     1,     1,     1,
-       1,     1,     1,     3,     1,     7,     4,     5,     0,     7,
-       1,     1,     1,     4,     1,     1,     0,     2,     3,     1,
-       3,     1,     3,     1,     5,     3,     3,     1,     3,     3,
-       1,     2,     3
+       1,     1,     1,     1,     3,     1,     7,     4,     5,     0,
+       7,     5,     1,     1,     1,     4,     1,     3,     1,     0,
+       2,     3,     1,     3,     1,     3,     1,     5,     3,     3,
+       1,     3,     3,     1,     2,     3
   };
 
 
@@ -1165,11 +1210,11 @@ namespace yy {
   "INSERT", "UPDATE", "DELETE", "SELECT", "CREATE", "FROM", "INTO", "SET",
   "VALUES", "WHERE", "AND", "OR", "EQUAL", "RANGE_OPERATOR", "TABLE",
   "INDEX", "COLUMN", "PI", "PD", "PK", "INT", "DOUBLE", "CHAR", "BOOL",
-  "DATE", "STRING", "ID", "NUM", "$accept", "PROGRAM", "$@1", "SENTENCE",
+  "STRING", "ID", "NUM", "$accept", "PROGRAM", "$@1", "SENTENCE",
   "INPLACE_VALUE", "VALUE", "PARAMS", "INSERT_TYPE", "DELETE_TYPE",
-  "UPDATE_TYPE", "CREATE_TYPE", "$@2", "TYPE", "CONDITIONALS",
-  "CONDITION_LIST", "FACTOR_CONDITION", "CONDITION", "RANGE_CONDITION",
-  "SET_LIST", "SET_UNIT", "CREATE_LIST", "CREATE_UNIT", YY_NULLPTR
+  "UPDATE_TYPE", "CREATE_TYPE", "$@2", "SELECT_TYPE", "TYPE", "COLUMNS",
+  "CONDITIONALS", "CONDITION_LIST", "FACTOR_CONDITION", "CONDITION",
+  "RANGE_CONDITION", "SET_LIST", "SET_UNIT", "CREATE_LIST", "CREATE_UNIT", YY_NULLPTR
   };
 #endif
 
@@ -1178,11 +1223,11 @@ namespace yy {
   const signed char
   parser::yyrline_[] =
   {
-       0,    60,    60,    61,    61,    63,    63,    63,    63,    65,
-      65,    66,    66,    67,    67,    71,    72,    73,    74,    74,
-      77,    77,    77,    77,    77,    77,    80,    81,    83,    83,
-      84,    84,    86,    87,    88,    89,    92,    92,    93,    96,
-      96,    97,    98
+       0,    63,    63,    64,    64,    66,    66,    66,    66,    66,
+      68,    68,    69,    69,    70,    70,    74,    75,    76,    77,
+      77,    78,    81,    81,    81,    81,    81,    84,    84,    87,
+      88,    90,    90,    91,    91,    93,    94,    95,    96,    99,
+      99,   100,   103,   103,   104,   105
   };
 
   void
@@ -1249,10 +1294,10 @@ namespace yy {
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28,    29,    30,    31,    32
+      25,    26,    27,    28,    29,    30,    31
     };
     // Last valid token kind.
-    const int code_max = 287;
+    const int code_max = 286;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1263,9 +1308,9 @@ namespace yy {
   }
 
 } // yy
-#line 1267 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
+#line 1312 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.cc"
 
-#line 99 "parser.yy"
+#line 106 "parser.yy"
 
 
 void yy::parser::error(const location_type &l, const std::string &message){

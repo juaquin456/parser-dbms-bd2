@@ -25,6 +25,7 @@ public:
     void del();
     void exec();
     void createTable(std::string& tablename, const std::vector<column_t*>& columns);
+    void select(std::string& tablename, std::vector<std::string>* column_names);
 private:
     void parse_helper(std::istream &stream);
     std::unordered_set<std::string> tablenames;

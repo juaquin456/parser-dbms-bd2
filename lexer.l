@@ -61,7 +61,6 @@ int (?i:int)
 double (?i:double)
 char (?i:char)
 bool (?i:bool)
-date (?i:date)
 
 pk "primary key"
 
@@ -100,7 +99,6 @@ pk "primary key"
 {double}    {return token::DOUBLE;}
 {char}      {return token::CHAR;}
 {bool}      {return token::BOOL;}
-{date}      {return token::DATE;}
 
 {pk}        {return token::PK;}
 

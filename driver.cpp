@@ -88,10 +88,8 @@ void driver::createTable(std::string& tablename, const std::vector<column_t*>& c
         std::cerr << "Table already exist\n";
         exit(EXIT_FAILURE);
     }
-    std::cout << columns.size() << std::endl;
     this->tablenames.insert(tablename);
-    std::cout << tablename.length() << std::endl;
-
+    
     std::ofstream metadata(METADATA_PATH, std::ios::binary | std::ios::app);
     metadata.seekp(0, std::ios::end);
     metadata.write(tablename.c_str(), 64);
@@ -100,6 +98,11 @@ void driver::createTable(std::string& tablename, const std::vector<column_t*>& c
     std::ofstream tablefile(tablename+".bin", std::ios::app | std::ios::app);
     for(auto& column: columns) {
         tablefile.write((char*)& *column, sizeof(*column));
+        delete column;
     }
     tablefile.close();
+}
+
+void driver::select(std::string& tablename, std::vector<std::string>* column_names) {
+
 }

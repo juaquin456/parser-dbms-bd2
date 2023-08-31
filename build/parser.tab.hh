@@ -52,9 +52,9 @@
 
     struct column_t {
         std::string name;
-        std::pair<int, int> type;
+        std::pair<char, int> type;
         bool is_pk;
-        column_t(const std::string& name, const std::pair<int, int>& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
+        column_t(const std::string& name, const std::pair<char, int>& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
     };
 
     class driver;
@@ -444,6 +444,9 @@ namespace yy {
 
       // CREATE_LIST
       char dummy5[sizeof (std::vector<column_t*>)];
+
+      // COLUMNS
+      char dummy6[sizeof (std::vector<std::string>*)];
     };
 
     /// The size of the largest semantic type.
@@ -522,10 +525,9 @@ namespace yy {
     DOUBLE = 281,                  // DOUBLE
     CHAR = 282,                    // CHAR
     BOOL = 283,                    // BOOL
-    DATE = 284,                    // DATE
-    STRING = 285,                  // STRING
-    ID = 286,                      // ID
-    NUM = 287                      // NUM
+    STRING = 284,                  // STRING
+    ID = 285,                      // ID
+    NUM = 286                      // NUM
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -542,7 +544,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 33, ///< Number of tokens.
+        YYNTOKENS = 32, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -573,32 +575,33 @@ namespace yy {
         S_DOUBLE = 26,                           // DOUBLE
         S_CHAR = 27,                             // CHAR
         S_BOOL = 28,                             // BOOL
-        S_DATE = 29,                             // DATE
-        S_STRING = 30,                           // STRING
-        S_ID = 31,                               // ID
-        S_NUM = 32,                              // NUM
-        S_YYACCEPT = 33,                         // $accept
-        S_PROGRAM = 34,                          // PROGRAM
-        S_35_1 = 35,                             // $@1
-        S_SENTENCE = 36,                         // SENTENCE
-        S_INPLACE_VALUE = 37,                    // INPLACE_VALUE
-        S_VALUE = 38,                            // VALUE
-        S_PARAMS = 39,                           // PARAMS
-        S_INSERT_TYPE = 40,                      // INSERT_TYPE
-        S_DELETE_TYPE = 41,                      // DELETE_TYPE
-        S_UPDATE_TYPE = 42,                      // UPDATE_TYPE
-        S_CREATE_TYPE = 43,                      // CREATE_TYPE
-        S_44_2 = 44,                             // $@2
+        S_STRING = 29,                           // STRING
+        S_ID = 30,                               // ID
+        S_NUM = 31,                              // NUM
+        S_YYACCEPT = 32,                         // $accept
+        S_PROGRAM = 33,                          // PROGRAM
+        S_34_1 = 34,                             // $@1
+        S_SENTENCE = 35,                         // SENTENCE
+        S_INPLACE_VALUE = 36,                    // INPLACE_VALUE
+        S_VALUE = 37,                            // VALUE
+        S_PARAMS = 38,                           // PARAMS
+        S_INSERT_TYPE = 39,                      // INSERT_TYPE
+        S_DELETE_TYPE = 40,                      // DELETE_TYPE
+        S_UPDATE_TYPE = 41,                      // UPDATE_TYPE
+        S_CREATE_TYPE = 42,                      // CREATE_TYPE
+        S_43_2 = 43,                             // $@2
+        S_SELECT_TYPE = 44,                      // SELECT_TYPE
         S_TYPE = 45,                             // TYPE
-        S_CONDITIONALS = 46,                     // CONDITIONALS
-        S_CONDITION_LIST = 47,                   // CONDITION_LIST
-        S_FACTOR_CONDITION = 48,                 // FACTOR_CONDITION
-        S_CONDITION = 49,                        // CONDITION
-        S_RANGE_CONDITION = 50,                  // RANGE_CONDITION
-        S_SET_LIST = 51,                         // SET_LIST
-        S_SET_UNIT = 52,                         // SET_UNIT
-        S_CREATE_LIST = 53,                      // CREATE_LIST
-        S_CREATE_UNIT = 54                       // CREATE_UNIT
+        S_COLUMNS = 46,                          // COLUMNS
+        S_CONDITIONALS = 47,                     // CONDITIONALS
+        S_CONDITION_LIST = 48,                   // CONDITION_LIST
+        S_FACTOR_CONDITION = 49,                 // FACTOR_CONDITION
+        S_CONDITION = 50,                        // CONDITION
+        S_RANGE_CONDITION = 51,                  // RANGE_CONDITION
+        S_SET_LIST = 52,                         // SET_LIST
+        S_SET_UNIT = 53,                         // SET_UNIT
+        S_CREATE_LIST = 54,                      // CREATE_LIST
+        S_CREATE_UNIT = 55                       // CREATE_UNIT
       };
     };
 
@@ -654,6 +657,10 @@ namespace yy {
 
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
         value.move< std::vector<column_t*> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_COLUMNS: // COLUMNS
+        value.move< std::vector<std::string>* > (std::move (that.value));
         break;
 
       default:
@@ -749,6 +756,20 @@ namespace yy {
       {}
 #endif
 
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::vector<std::string>*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::vector<std::string>*& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
       /// Destroy the symbol.
       ~basic_symbol ()
       {
@@ -792,6 +813,10 @@ switch (yykind)
 
       case symbol_kind::S_CREATE_LIST: // CREATE_LIST
         value.template destroy< std::vector<column_t*> > ();
+        break;
+
+      case symbol_kind::S_COLUMNS: // COLUMNS
+        value.template destroy< std::vector<std::string>* > ();
         break;
 
       default:
@@ -895,7 +920,7 @@ switch (yykind)
       {
 #if !defined _MSC_VER || defined __clang__
         YY_ASSERT (tok == token::YYEOF
-                   || (token::YYerror <= tok && tok <= token::DATE));
+                   || (token::YYerror <= tok && tok <= token::BOOL));
 #endif
       }
 #if 201103L <= YY_CPLUSPLUS
@@ -1411,21 +1436,6 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_DATE (location_type l)
-      {
-        return symbol_type (token::DATE, std::move (l));
-      }
-#else
-      static
-      symbol_type
-      make_DATE (const location_type& l)
-      {
-        return symbol_type (token::DATE, l);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
       make_STRING (std::string v, location_type l)
       {
         return symbol_type (token::STRING, std::move (v), std::move (l));
@@ -1772,9 +1782,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 65,     ///< Last index in yytable_.
-      yynnts_ = 22,  ///< Number of nonterminal symbols.
-      yyfinal_ = 15 ///< Termination state number.
+      yylast_ = 72,     ///< Last index in yytable_.
+      yynnts_ = 24,  ///< Number of nonterminal symbols.
+      yyfinal_ = 19 ///< Termination state number.
     };
 
 
@@ -1786,7 +1796,7 @@ switch (yykind)
 
 
 } // yy
-#line 1790 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
+#line 1800 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
 
 
 
