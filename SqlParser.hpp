@@ -1,5 +1,5 @@
-#ifndef __DRIVER_HPP__
-#define __DRIVER_HPP__
+#ifndef SQL_PARSER_HPP
+#define SQL_PARSER_HPP
 
 #include <cstddef>
 #include <istream>
@@ -11,11 +11,11 @@
 
 struct column_t;
 
-class driver {
+class SqlParser {
 public:
-  driver();
+  SqlParser();
 
-  virtual ~driver();
+  virtual ~SqlParser();
 
   void parse(const char *filename);
 
@@ -35,4 +35,4 @@ private:
   scanner *sc = nullptr;
 };
 
-#endif
+#endif // SQL_PARSER_HPP

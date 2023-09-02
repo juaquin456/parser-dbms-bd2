@@ -6,7 +6,7 @@
 
 const std::string METADATA_PATH = "./meta.data";
 
-driver::driver() {
+SqlParser::SqlParser() {
   std::ifstream metadata(METADATA_PATH, std::ios::app | std::ios::binary);
   if (!metadata.is_open()) {
     std::cerr << "Can't open meta.data\n";
@@ -24,14 +24,14 @@ driver::driver() {
   metadata.close();
 }
 
-driver::~driver() {
+SqlParser::~SqlParser() {
   delete sc;
   sc = nullptr;
   delete parser;
   parser = nullptr;
 }
 
-void driver::parse(const char *filename) {
+void SqlParser::parse(const char *filename) {
   assert(filename != nullptr);
   std::ifstream in_file(filename);
   if (!in_file.good()) {
@@ -40,14 +40,14 @@ void driver::parse(const char *filename) {
   parse_helper(in_file);
 }
 
-void driver::parse(std::istream &stream) {
+void SqlParser::parse(std::istream &stream) {
   if (!stream.good() && stream.eof()) {
     return;
   }
   parse_helper(stream);
 }
 
-void driver::parse_helper(std::istream &stream) {
+void SqlParser::parse_helper(std::istream &stream) {
   delete (sc);
   try {
     sc = new scanner(&stream);
@@ -71,14 +71,14 @@ void driver::parse_helper(std::istream &stream) {
   }
 }
 
-void driver::insert() { printf("Insert found\n"); }
+void SqlParser::insert() { printf("Insert found\n"); }
 
-void driver::del() { printf("Delete found\n"); }
+void SqlParser::del() { printf("Delete found\n"); }
 
-void driver::exec() {}
+void SqlParser::exec() {}
 
-void driver::createTable(std::string &tablename,
-                         const std::vector<column_t *> &columns) {
+void SqlParser::createTable(std::string &tablename,
+                            const std::vector<column_t *> &columns) {
   if (this->tablenames.find(tablename) != nullptr) {
     std::cerr << "Table already exist\n";
     exit(EXIT_FAILURE);
@@ -98,5 +98,5 @@ void driver::createTable(std::string &tablename,
   tablefile.close();
 }
 
-void driver::select(std::string &tablename,
-                    std::vector<std::string> *column_names) {}
+void SqlParser::select(std::string &tablename,
+                       std::vector<std::string> *column_names) {}

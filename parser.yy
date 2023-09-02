@@ -14,7 +14,7 @@
         column_t(const std::string& name, const std::pair<char, int>& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
     };
 
-    class driver;
+    class SqlParser;
     class scanner;
 
     #define YYERROR_VERBOSE 1
@@ -29,7 +29,7 @@
 }
 
 %parse-param {scanner &sc}
-%parse-param {driver &dr}
+%parse-param {SqlParser &dr}
 
 %code {
     #include <iostream>
