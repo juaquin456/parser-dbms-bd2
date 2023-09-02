@@ -22,7 +22,7 @@
 
 letter [a-zA-Z]
 num [0-9]*
-
+floating -?num.num
 string \'[^\']*\'
 
 id {letter}({letter}|{num}|_)*
@@ -105,6 +105,7 @@ pk "primary key"
 {id}        {yylval->emplace<std::string>() = yytext; return token::ID;}
 {string}    {yylval->emplace<std::string>() = yytext; return token::STRING;}
 {num}       {yylval->emplace<int>() = std::stoi(yytext); return token::NUM;}
+{floating}  {yylval->emplace<double>() = std::stod(yytext); return token::FLOATING;}
 <<EOF>>     {yyterminate();}
 .           {scanner::LexerError("Unknown character");}
 %%

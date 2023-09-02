@@ -14,6 +14,12 @@
         column_t(const std::string& name, const std::pair<char, int>& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
     };
 
+    struct condition_t {
+        std::string column_name;
+        std::string op;
+        // TODO
+    }
+
     class driver;
     class scanner;
 
@@ -50,12 +56,13 @@
 %token <std::string> STRING
 %token <std::string> ID
 %token <int> NUM
+%token <double> FLOATING
 
 %type <std::vector<std::string>*> COLUMNS
 
 %type <std::vector<column_t*>> CREATE_LIST
 %type <column_t*> CREATE_UNIT
-%type <std::pair<int, int>> TYPE
+%type <std::pair<char, int>> TYPE
 %locations
 
 %%
@@ -65,9 +72,9 @@ PROGRAM:            /*  */
 
 SENTENCE:           INSERT_TYPE | DELETE_TYPE | UPDATE_TYPE | CREATE_TYPE | SELECT_TYPE;
 
-INPLACE_VALUE:          STRING | NUM;
-VALUE:               ID | INPLACE_VALUE;
-PARAMS:         INPLACE_VALUE SEP PARAMS | INPLACE_VALUE;
+INPLACE_VALUE:      STRING | NUM | FLOATING;
+VALUE:              ID | INPLACE_VALUE;
+PARAMS:             INPLACE_VALUE SEP PARAMS | INPLACE_VALUE;
 
 /* SENTECES TYPE */
 
@@ -91,9 +98,8 @@ CONDITION_LIST:     CONDITION_LIST AND FACTOR_CONDITION | FACTOR_CONDITION;
 FACTOR_CONDITION:   FACTOR_CONDITION OR CONDITION | CONDITION;
 
 CONDITION:          ID EQUAL VALUE
-                    | RANGE_CONDITION;
-RANGE_CONDITION:    VALUE RANGE_OPERATOR ID RANGE_OPERATOR VALUE
-                    | VALUE RANGE_OPERATOR VALUE;
+                    | ID RANGE_OPERATOR VALUE
+                    | VALUE RANGE_OPERATOR ID ;
 
 /* UPDATE PARAMETERS */
 SET_LIST:           SET_LIST SEP SET_UNIT | SET_UNIT;
