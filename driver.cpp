@@ -1,6 +1,7 @@
 #include <cctype>
 #include <fstream>
 #include <cassert>
+#include <cstring>
 
 #include "driver.hpp"
 
@@ -103,6 +104,38 @@ void driver::createTable(std::string& tablename, const std::vector<column_t*>& c
     tablefile.close();
 }
 
-void driver::select(std::string& tablename, std::vector<std::string>* column_names) {
+void driver::select(const std::string& tablename, std::vector<std::string>* column_names, condition_t* constraint) {
+    if (this->tablenames.find(tablename) == nullptr) {
+        std::cerr << "Table doesn't exist\n";
+        exit(EXIT_FAILURE);
+    }
 
+    if (constraint == nullptr) return;
+    switch (constraint->value.type.value) {
+        case Type::Bool:
+            break;
+        case Type::Numeric:
+            int value;
+            memcpy(&value, constraint->value.data, constraint->value.type.size);
+            std::cout << "the value to compare is "<< value << std::endl;
+            break;
+        case Type::Floating:
+            double value1;
+            memcpy(&value1, constraint->value.data, constraint->value.type.size);
+            std::cout << "the value to compare is "<< value1 << std::endl;
+            break;
+        case Type::Char:
+            std::string buffer(constraint->value.data);
+            std::cout << "the value to compare is "<< buffer << std::endl;
+            break;
+    }
+
+    switch (constraint->c)
+    {
+    case EQUAL:
+        break;
+    
+    default:
+        break;
+    }
 }

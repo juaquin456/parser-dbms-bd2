@@ -48,14 +48,77 @@
 #line 6 "parser.yy"
 
     #include <string>
+    #include <cstring>
     #include <utility>
+
+
+    struct Type {        
+        enum Enum {
+            Bool,
+            Numeric,
+            Floating,
+            Char
+        };
+
+        size_t size;
+        Enum value;
+
+        Type() = default;
+        Type(Enum e, const size_t& _size): size(_size), value(e) {}
+        Type(const Type& t) {
+            this->size = t.size;
+            this->value = t.value;
+        }
+        Type& operator=(const Type& t) {
+            this->size = t.size;
+            this->value = t.value;
+            return *this;
+        }
+    };
 
     struct column_t {
         std::string name;
-        std::pair<char, int> type;
+        Type type;
         bool is_pk;
-        column_t(const std::string& name, const std::pair<char, int>& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
+        column_t(const std::string& name, const Type& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
     };
+
+    struct Inplace {
+        char* data;
+        Type type;
+
+        Inplace() = default;
+
+        template<typename T, typename = std::enable_if_t<!std::is_same<T, char*>::value>>
+        Inplace(T value, const Type& _type) {
+            this->data = new char[_type.size];
+            memcpy(this->data, value, _type.size);
+            this->type = _type;
+        }
+        Inplace(const Inplace& another) {
+            this->data = another.data;
+            this->type = another.type;
+        }
+    };
+    
+    enum Comp {
+        EQUAL,
+        GE,
+        LE,
+        G,
+        L
+    };
+
+    struct condition_t {
+        Comp c;
+        std::string column;
+        Inplace value;
+
+        condition_t() = default;
+        condition_t(const std::string& column, Comp comparator, const Inplace& value):
+            column(column), c(comparator), value(value) {}
+    };
+
 
     class driver;
     class scanner;
@@ -70,7 +133,7 @@
     #endif
 
 
-#line 74 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
+#line 137 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -210,7 +273,7 @@
 #endif
 
 namespace yy {
-#line 214 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
+#line 277 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
 
 
 
@@ -429,24 +492,38 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // CREATE_UNIT
-      char dummy1[sizeof (column_t*)];
+      // RANGE_OPERATOR
+      char dummy1[sizeof (Comp)];
 
-      // NUM
-      char dummy2[sizeof (int)];
+      // INPLACE_VALUE
+      char dummy2[sizeof (Inplace)];
 
       // TYPE
-      char dummy3[sizeof (std::pair<int, int>)];
+      char dummy3[sizeof (Type)];
 
-      // STRING
+      // CREATE_UNIT
+      char dummy4[sizeof (column_t*)];
+
+      // CONDITIONALS
+      // CONDITION_LIST
+      // CONDITION
+      char dummy5[sizeof (condition_t*)];
+
+      // FLOATING
+      char dummy6[sizeof (double)];
+
+      // NUM
+      char dummy7[sizeof (int)];
+
       // ID
-      char dummy4[sizeof (std::string)];
+      // STRING
+      char dummy8[sizeof (std::string)];
 
       // CREATE_LIST
-      char dummy5[sizeof (std::vector<column_t*>)];
+      char dummy9[sizeof (std::vector<column_t*>)];
 
       // COLUMNS
-      char dummy6[sizeof (std::vector<std::string>*)];
+      char dummy10[sizeof (std::vector<std::string>*)];
     };
 
     /// The size of the largest semantic type.
@@ -514,20 +591,24 @@ namespace yy {
     AND = 270,                     // AND
     OR = 271,                      // OR
     EQUAL = 272,                   // EQUAL
-    RANGE_OPERATOR = 273,          // RANGE_OPERATOR
-    TABLE = 274,                   // TABLE
-    INDEX = 275,                   // INDEX
-    COLUMN = 276,                  // COLUMN
-    PI = 277,                      // PI
-    PD = 278,                      // PD
-    PK = 279,                      // PK
-    INT = 280,                     // INT
-    DOUBLE = 281,                  // DOUBLE
-    CHAR = 282,                    // CHAR
-    BOOL = 283,                    // BOOL
-    STRING = 284,                  // STRING
-    ID = 285,                      // ID
-    NUM = 286                      // NUM
+    TABLE = 273,                   // TABLE
+    INDEX = 274,                   // INDEX
+    COLUMN = 275,                  // COLUMN
+    PI = 276,                      // PI
+    PD = 277,                      // PD
+    PK = 278,                      // PK
+    INT = 279,                     // INT
+    DOUBLE = 280,                  // DOUBLE
+    CHAR = 281,                    // CHAR
+    BOOL = 282,                    // BOOL
+    GE = 283,                      // GE
+    G = 284,                       // G
+    LE = 285,                      // LE
+    L = 286,                       // L
+    ID = 287,                      // ID
+    STRING = 288,                  // STRING
+    NUM = 289,                     // NUM
+    FLOATING = 290                 // FLOATING
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -544,7 +625,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 32, ///< Number of tokens.
+        YYNTOKENS = 36, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -564,44 +645,47 @@ namespace yy {
         S_AND = 15,                              // AND
         S_OR = 16,                               // OR
         S_EQUAL = 17,                            // EQUAL
-        S_RANGE_OPERATOR = 18,                   // RANGE_OPERATOR
-        S_TABLE = 19,                            // TABLE
-        S_INDEX = 20,                            // INDEX
-        S_COLUMN = 21,                           // COLUMN
-        S_PI = 22,                               // PI
-        S_PD = 23,                               // PD
-        S_PK = 24,                               // PK
-        S_INT = 25,                              // INT
-        S_DOUBLE = 26,                           // DOUBLE
-        S_CHAR = 27,                             // CHAR
-        S_BOOL = 28,                             // BOOL
-        S_STRING = 29,                           // STRING
-        S_ID = 30,                               // ID
-        S_NUM = 31,                              // NUM
-        S_YYACCEPT = 32,                         // $accept
-        S_PROGRAM = 33,                          // PROGRAM
-        S_34_1 = 34,                             // $@1
-        S_SENTENCE = 35,                         // SENTENCE
-        S_INPLACE_VALUE = 36,                    // INPLACE_VALUE
-        S_VALUE = 37,                            // VALUE
-        S_PARAMS = 38,                           // PARAMS
-        S_INSERT_TYPE = 39,                      // INSERT_TYPE
-        S_DELETE_TYPE = 40,                      // DELETE_TYPE
-        S_UPDATE_TYPE = 41,                      // UPDATE_TYPE
-        S_CREATE_TYPE = 42,                      // CREATE_TYPE
-        S_43_2 = 43,                             // $@2
-        S_SELECT_TYPE = 44,                      // SELECT_TYPE
-        S_TYPE = 45,                             // TYPE
-        S_COLUMNS = 46,                          // COLUMNS
-        S_CONDITIONALS = 47,                     // CONDITIONALS
-        S_CONDITION_LIST = 48,                   // CONDITION_LIST
-        S_FACTOR_CONDITION = 49,                 // FACTOR_CONDITION
-        S_CONDITION = 50,                        // CONDITION
-        S_RANGE_CONDITION = 51,                  // RANGE_CONDITION
-        S_SET_LIST = 52,                         // SET_LIST
-        S_SET_UNIT = 53,                         // SET_UNIT
-        S_CREATE_LIST = 54,                      // CREATE_LIST
-        S_CREATE_UNIT = 55                       // CREATE_UNIT
+        S_TABLE = 18,                            // TABLE
+        S_INDEX = 19,                            // INDEX
+        S_COLUMN = 20,                           // COLUMN
+        S_PI = 21,                               // PI
+        S_PD = 22,                               // PD
+        S_PK = 23,                               // PK
+        S_INT = 24,                              // INT
+        S_DOUBLE = 25,                           // DOUBLE
+        S_CHAR = 26,                             // CHAR
+        S_BOOL = 27,                             // BOOL
+        S_GE = 28,                               // GE
+        S_G = 29,                                // G
+        S_LE = 30,                               // LE
+        S_L = 31,                                // L
+        S_ID = 32,                               // ID
+        S_STRING = 33,                           // STRING
+        S_NUM = 34,                              // NUM
+        S_FLOATING = 35,                         // FLOATING
+        S_YYACCEPT = 36,                         // $accept
+        S_PROGRAM = 37,                          // PROGRAM
+        S_38_1 = 38,                             // $@1
+        S_SENTENCE = 39,                         // SENTENCE
+        S_INPLACE_VALUE = 40,                    // INPLACE_VALUE
+        S_VALUE = 41,                            // VALUE
+        S_PARAMS = 42,                           // PARAMS
+        S_RANGE_OPERATOR = 43,                   // RANGE_OPERATOR
+        S_INSERT_TYPE = 44,                      // INSERT_TYPE
+        S_DELETE_TYPE = 45,                      // DELETE_TYPE
+        S_UPDATE_TYPE = 46,                      // UPDATE_TYPE
+        S_CREATE_TYPE = 47,                      // CREATE_TYPE
+        S_48_2 = 48,                             // $@2
+        S_SELECT_TYPE = 49,                      // SELECT_TYPE
+        S_TYPE = 50,                             // TYPE
+        S_COLUMNS = 51,                          // COLUMNS
+        S_CONDITIONALS = 52,                     // CONDITIONALS
+        S_CONDITION_LIST = 53,                   // CONDITION_LIST
+        S_CONDITION = 54,                        // CONDITION
+        S_SET_LIST = 55,                         // SET_LIST
+        S_SET_UNIT = 56,                         // SET_UNIT
+        S_CREATE_LIST = 57,                      // CREATE_LIST
+        S_CREATE_UNIT = 58                       // CREATE_UNIT
       };
     };
 
@@ -638,20 +722,38 @@ namespace yy {
       {
         switch (this->kind ())
     {
+      case symbol_kind::S_RANGE_OPERATOR: // RANGE_OPERATOR
+        value.move< Comp > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_INPLACE_VALUE: // INPLACE_VALUE
+        value.move< Inplace > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_TYPE: // TYPE
+        value.move< Type > (std::move (that.value));
+        break;
+
       case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
         value.move< column_t* > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_CONDITIONALS: // CONDITIONALS
+      case symbol_kind::S_CONDITION_LIST: // CONDITION_LIST
+      case symbol_kind::S_CONDITION: // CONDITION
+        value.move< condition_t* > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_FLOATING: // FLOATING
+        value.move< double > (std::move (that.value));
         break;
 
       case symbol_kind::S_NUM: // NUM
         value.move< int > (std::move (that.value));
         break;
 
-      case symbol_kind::S_TYPE: // TYPE
-        value.move< std::pair<int, int> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_STRING: // STRING
       case symbol_kind::S_ID: // ID
+      case symbol_kind::S_STRING: // STRING
         value.move< std::string > (std::move (that.value));
         break;
 
@@ -687,6 +789,48 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, Comp&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const Comp& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, Inplace&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const Inplace& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, Type&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const Type& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, column_t*&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -701,13 +845,13 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, int&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, condition_t*&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const int& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const condition_t*& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -715,13 +859,27 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::pair<int, int>&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, double&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const std::pair<int, int>& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const double& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, int&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const int& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -794,20 +952,38 @@ namespace yy {
         // Value type destructor.
 switch (yykind)
     {
+      case symbol_kind::S_RANGE_OPERATOR: // RANGE_OPERATOR
+        value.template destroy< Comp > ();
+        break;
+
+      case symbol_kind::S_INPLACE_VALUE: // INPLACE_VALUE
+        value.template destroy< Inplace > ();
+        break;
+
+      case symbol_kind::S_TYPE: // TYPE
+        value.template destroy< Type > ();
+        break;
+
       case symbol_kind::S_CREATE_UNIT: // CREATE_UNIT
         value.template destroy< column_t* > ();
+        break;
+
+      case symbol_kind::S_CONDITIONALS: // CONDITIONALS
+      case symbol_kind::S_CONDITION_LIST: // CONDITION_LIST
+      case symbol_kind::S_CONDITION: // CONDITION
+        value.template destroy< condition_t* > ();
+        break;
+
+      case symbol_kind::S_FLOATING: // FLOATING
+        value.template destroy< double > ();
         break;
 
       case symbol_kind::S_NUM: // NUM
         value.template destroy< int > ();
         break;
 
-      case symbol_kind::S_TYPE: // TYPE
-        value.template destroy< std::pair<int, int> > ();
-        break;
-
-      case symbol_kind::S_STRING: // STRING
       case symbol_kind::S_ID: // ID
+      case symbol_kind::S_STRING: // STRING
         value.template destroy< std::string > ();
         break;
 
@@ -920,7 +1096,19 @@ switch (yykind)
       {
 #if !defined _MSC_VER || defined __clang__
         YY_ASSERT (tok == token::YYEOF
-                   || (token::YYerror <= tok && tok <= token::BOOL));
+                   || (token::YYerror <= tok && tok <= token::L));
+#endif
+      }
+#if 201103L <= YY_CPLUSPLUS
+      symbol_type (int tok, double v, location_type l)
+        : super_type (token_kind_type (tok), std::move (v), std::move (l))
+#else
+      symbol_type (int tok, const double& v, const location_type& l)
+        : super_type (token_kind_type (tok), v, l)
+#endif
+      {
+#if !defined _MSC_VER || defined __clang__
+        YY_ASSERT (tok == token::FLOATING);
 #endif
       }
 #if 201103L <= YY_CPLUSPLUS
@@ -944,7 +1132,7 @@ switch (yykind)
 #endif
       {
 #if !defined _MSC_VER || defined __clang__
-        YY_ASSERT ((token::STRING <= tok && tok <= token::ID));
+        YY_ASSERT ((token::ID <= tok && tok <= token::STRING));
 #endif
       }
     };
@@ -1271,21 +1459,6 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_RANGE_OPERATOR (location_type l)
-      {
-        return symbol_type (token::RANGE_OPERATOR, std::move (l));
-      }
-#else
-      static
-      symbol_type
-      make_RANGE_OPERATOR (const location_type& l)
-      {
-        return symbol_type (token::RANGE_OPERATOR, l);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
       make_TABLE (location_type l)
       {
         return symbol_type (token::TABLE, std::move (l));
@@ -1436,16 +1609,61 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_STRING (std::string v, location_type l)
+      make_GE (location_type l)
       {
-        return symbol_type (token::STRING, std::move (v), std::move (l));
+        return symbol_type (token::GE, std::move (l));
       }
 #else
       static
       symbol_type
-      make_STRING (const std::string& v, const location_type& l)
+      make_GE (const location_type& l)
       {
-        return symbol_type (token::STRING, v, l);
+        return symbol_type (token::GE, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_G (location_type l)
+      {
+        return symbol_type (token::G, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_G (const location_type& l)
+      {
+        return symbol_type (token::G, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_LE (location_type l)
+      {
+        return symbol_type (token::LE, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_LE (const location_type& l)
+      {
+        return symbol_type (token::LE, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_L (location_type l)
+      {
+        return symbol_type (token::L, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_L (const location_type& l)
+      {
+        return symbol_type (token::L, l);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -1466,6 +1684,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_STRING (std::string v, location_type l)
+      {
+        return symbol_type (token::STRING, std::move (v), std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_STRING (const std::string& v, const location_type& l)
+      {
+        return symbol_type (token::STRING, v, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_NUM (int v, location_type l)
       {
         return symbol_type (token::NUM, std::move (v), std::move (l));
@@ -1476,6 +1709,21 @@ switch (yykind)
       make_NUM (const int& v, const location_type& l)
       {
         return symbol_type (token::NUM, v, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_FLOATING (double v, location_type l)
+      {
+        return symbol_type (token::FLOATING, std::move (v), std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_FLOATING (const double& v, const location_type& l)
+      {
+        return symbol_type (token::FLOATING, v, l);
       }
 #endif
 
@@ -1555,7 +1803,7 @@ switch (yykind)
 
 #if YYDEBUG
     // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-    static const signed char yyrline_[];
+    static const unsigned char yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r) const;
     /// Print the state stack on the debug stream.
@@ -1782,8 +2030,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 72,     ///< Last index in yytable_.
-      yynnts_ = 24,  ///< Number of nonterminal symbols.
+      yylast_ = 65,     ///< Last index in yytable_.
+      yynnts_ = 23,  ///< Number of nonterminal symbols.
       yyfinal_ = 19 ///< Termination state number.
     };
 
@@ -1796,7 +2044,7 @@ switch (yykind)
 
 
 } // yy
-#line 1800 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
+#line 2048 "/home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/build/parser.tab.hh"
 
 
 

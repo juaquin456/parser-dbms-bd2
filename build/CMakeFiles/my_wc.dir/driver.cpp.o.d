@@ -148,7 +148,8 @@ CMakeFiles/my_wc.dir/driver.cpp.o: \
  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
  /usr/include/c++/11/bits/fstream.tcc /usr/include/c++/11/cassert \
- /usr/include/assert.h \
+ /usr/include/assert.h /usr/include/c++/11/cstring /usr/include/string.h \
+ /usr/include/strings.h \
  /home/juaquin/Documentos/UTEC/Ciclo6/BaseDatos2/projects/Proyecto1/parser/driver.hpp \
  /usr/include/c++/11/cstddef /usr/include/c++/11/unordered_set \
  /usr/include/c++/11/ext/aligned_buffer.h \

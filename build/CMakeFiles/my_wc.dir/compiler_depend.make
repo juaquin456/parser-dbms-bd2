@@ -184,6 +184,9 @@ CMakeFiles/my_wc.dir/driver.cpp.o: ../driver.cpp \
   /usr/include/c++/11/bits/fstream.tcc \
   /usr/include/c++/11/cassert \
   /usr/include/assert.h \
+  /usr/include/c++/11/cstring \
+  /usr/include/string.h \
+  /usr/include/strings.h \
   ../driver.hpp \
   /usr/include/c++/11/cstddef \
   /usr/include/c++/11/unordered_set \
@@ -763,6 +766,9 @@ CMakeFiles/my_wc.dir/parser.tab.cc.o: parser.tab.cc \
   /usr/include/c++/11/bits/functional_hash.h \
   /usr/include/c++/11/bits/hash_bytes.h \
   /usr/include/c++/11/bits/basic_string.tcc \
+  /usr/include/c++/11/cstring \
+  /usr/include/string.h \
+  /usr/include/strings.h \
   /usr/include/c++/11/utility \
   /usr/include/c++/11/bits/stl_relops.h \
   /usr/include/c++/11/cassert \
@@ -830,10 +836,6 @@ parser.tab.cc:
 
 ../main.cpp:
 
-/usr/include/string.h:
-
-/usr/include/c++/11/cstring:
-
 lexer.yy.cc:
 
 location.hh:
@@ -863,6 +865,10 @@ location.hh:
 /usr/include/c++/11/bits/hashtable.h:
 
 ../driver.hpp:
+
+/usr/include/string.h:
+
+/usr/include/c++/11/cstring:
 
 /usr/include/c++/11/cassert:
 
