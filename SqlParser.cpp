@@ -90,7 +90,7 @@ void driver::createTable(std::string &tablename,
   metadata.write(tablename.c_str(), 64);
   metadata.close();
 
-  std::ofstream tablefile(tablename + ".bin", std::ios::app | std::ios::app);
+  std::ofstream tablefile(tablename + ".bin", std::ios::app);
   for (auto &column : columns) {
     tablefile.write((char *)&*column, sizeof(*column));
     delete column;
