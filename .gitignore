@@ -1,6 +1,7 @@
 /build
 /docs
 /.cache
+/.vscode
 
 # Prerequisites
 *.d

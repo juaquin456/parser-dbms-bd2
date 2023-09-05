@@ -6,7 +6,7 @@
 
 const std::string METADATA_PATH = "./meta.data";
 
-SqlParser::SqlParser() {
+SqlParser::SqlParser(DBEngine& dbengine): engine(dbengine) {
   std::ifstream metadata(METADATA_PATH, std::ios::app | std::ios::binary);
   if (!metadata.is_open()) {
     std::cerr << "Can't open meta.data\n";
@@ -98,5 +98,7 @@ void SqlParser::createTable(std::string &tablename,
   tablefile.close();
 }
 
-void SqlParser::select(std::string &tablename,
-                       std::vector<std::string> *column_names) {}
+void SqlParser::select(std::vector<std::string> &response_body, std::string &tablename,
+              std::vector<std::string> *column_names) {
+                
+              }

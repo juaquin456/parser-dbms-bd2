@@ -13,16 +13,11 @@
 
 struct column_t;
 
-template <typename T>
-concept engine_t = requires(T t) {
-  {
-    t.createTable(std::vector<std::string>(), std::string())
-  } -> std::convertible_to<void>;
-};
+class DBEngine;
 
-template <engine_t T> class SqlParser {
+class SqlParser {
 public:
-  SqlParser();
+  SqlParser(DBEngine& dbengine);
 
   virtual ~SqlParser();
 
@@ -37,13 +32,10 @@ public:
   void createTable(std::string &tablename,
                    const std::vector<column_t *> &columns);
 
-  void select(vect<str> &response_body, std::string &tablename,
-              std::vector<std::string> *column_names) {
-    response_body = engine.select(tablename, column_names);
-  }
-
+  void select(std::vector<std::string> &response_body, std::string &tablename,
+              std::vector<std::string> *column_names);
 private:
-  T engine;
+  DBEngine& engine;
   void parse_helper(std::istream &stream);
   std::unordered_set<std::string> tablenames;
   yy::parser *parser = nullptr;

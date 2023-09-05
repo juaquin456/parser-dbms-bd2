@@ -75,7 +75,7 @@ INSERT_TYPE:        INSERT INTO ID VALUES PI PARAMS PD;
 DELETE_TYPE:        DELETE FROM ID CONDITIONALS;
 UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS;
 CREATE_TYPE:        CREATE TABLE ID {if ($3.size() > 64) yy::parser::error(@3, "Table name is too large");} PI CREATE_LIST PD {dr.createTable($3, $6);}
-SELECT_TYPE:        SELECT COLUMNS FROM ID CONDITIONALS {dr.select($4, $2);}
+SELECT_TYPE:        SELECT COLUMNS FROM ID CONDITIONALS {}
 
 /* TYPES */
 TYPE:               INT {$$.first = 0;}| DOUBLE {$$.first = 1;} | CHAR {$$.first = 2; $$.second = 1;} | CHAR PI NUM PD {$$.first = 2; $$.second = $3;}| BOOL {$$.first = 3;}
