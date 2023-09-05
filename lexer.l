@@ -22,7 +22,7 @@
 
 letter [a-zA-Z]
 num [0-9]*
-
+floating {num}"."{num}
 string \'[^\']*\'
 
 id {letter}({letter}|{num}|_)*
@@ -48,7 +48,10 @@ where (?i:where)
 and (?i:and)
 or (?i:or)
 equal "="
-range_ops "<"|">"|"<="|">="
+l  "<"
+g  ">"
+le "<="
+ge ">="
 
 /* Context */
 from (?i:from)
@@ -89,7 +92,10 @@ pk "primary key"
 {and}       {return token::AND;}
 {or}        {return token::OR;}
 {equal}     {return token::EQUAL;}
-{range_ops} {return token::RANGE_OPERATOR;}
+{ge}        {return token::GE;}
+{g}         {return token::G;}
+{le}        {return token::LE;}
+{l}         {return token::L;}
 
 {table}     {return token::TABLE;}
 {index}     {return token::INDEX;}
@@ -104,6 +110,7 @@ pk "primary key"
 
 {id}        {yylval->emplace<std::string>() = yytext; return token::ID;}
 {string}    {yylval->emplace<std::string>() = yytext; return token::STRING;}
+{floating}  {yylval->emplace<double>() = std::stod(yytext); return token::FLOATING;}
 {num}       {yylval->emplace<int>() = std::stoi(yytext); return token::NUM;}
 <<EOF>>     {yyterminate();}
 .           {scanner::LexerError("Unknown character");}
