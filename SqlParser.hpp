@@ -23,7 +23,7 @@ public:
 
   void parse(const char *filename);
 
-  void parse(std::istream &iss);
+  std::vector<std::string> parse(std::istream &iss);
 
   void insert();
   void del();
@@ -32,10 +32,11 @@ public:
   void createTable(std::string &tablename,
                    const std::vector<column_t *> &columns);
 
-  void select(std::vector<std::string> &response_body, std::string &tablename,
+  void select(std::string &tablename,
               std::vector<std::string> *column_names);
 private:
   DBEngine& engine;
+  std::vector<std::string> reponse;
   void parse_helper(std::istream &stream);
   std::unordered_set<std::string> tablenames;
   yy::parser *parser = nullptr;

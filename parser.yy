@@ -72,10 +72,10 @@
     struct condition_t {
         Comp c;
         std::string column;
-        Inplace value;
+        std::string value;
 
         condition_t() = default;
-        condition_t(const std::string& column, Comp comparator, const Inplace& value):
+        condition_t(const std::string& column, Comp comparator, const std::string& value):
             column(column), c(comparator), value(value) {}
     };
 
@@ -102,6 +102,7 @@
     #include <cstdlib>
     #include <fstream>
     #include <vector>
+    #include <list>
     #include "SqlParser.hpp"
 
     #undef yylex
@@ -127,9 +128,10 @@
 %type <column_t*> CREATE_UNIT
 %type <Type> TYPE
 
-%type <Inplace> INPLACE_VALUE
+%type <std::string> INPLACE_VALUE
 %type <condition_t*> CONDITION
-%type <condition_t*> CONDITION_LIST
+%type <std::list<std::list<condition_t*>>> CONDITION_LIST
+%type <std::list<condition_t*>> FACTOR_CONDITION
 %type <condition_t*> CONDITIONALS
 %locations
 
@@ -140,9 +142,9 @@ PROGRAM:            /*  */
 
 SENTENCE:           INSERT_TYPE | DELETE_TYPE | UPDATE_TYPE | CREATE_TYPE | SELECT_TYPE;
 
-INPLACE_VALUE:      STRING      {$$ = Inplace($1.data(), Type(Type::Char, $1.length()));} 
-                    | NUM       {$$ = Inplace(&$1, Type(Type::Numeric, sizeof(int)));} 
-                    | FLOATING  {$$ = Inplace(&$1, Type(Type::Floating, sizeof(double)));};
+INPLACE_VALUE:      STRING      {$$ = $1;} 
+                    | NUM       {$$ = std::to_string($1);} 
+                    | FLOATING  {$$ = std::to_string($1);};
 VALUE:               ID | INPLACE_VALUE;
 PARAMS:         INPLACE_VALUE SEP PARAMS | INPLACE_VALUE;
 RANGE_OPERATOR:     GE {$$ = GE;}| G {$$ = G;}| LE {$$ = LE;}| L {$$ = L;};
@@ -151,8 +153,8 @@ RANGE_OPERATOR:     GE {$$ = GE;}| G {$$ = G;}| LE {$$ = LE;}| L {$$ = L;};
 INSERT_TYPE:        INSERT INTO ID VALUES PI PARAMS PD;
 DELETE_TYPE:        DELETE FROM ID CONDITIONALS;
 UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS;
-CREATE_TYPE:        CREATE TABLE ID {if ($3.size() > 64) yy::parser::error(@3, "Table name is too large");} PI CREATE_LIST PD {dr.createTable($3, $6);}
-SELECT_TYPE:        SELECT COLUMNS FROM ID CONDITIONALS {}
+CREATE_TYPE:        CREATE TABLE ID  PI CREATE_LIST PD {dr.createTable($3, $5);}
+SELECT_TYPE:        SELECT COLUMNS FROM ID CONDITIONALS
 
 /* TYPES */
 TYPE:               INT {$$ = Type(Type::Numeric, sizeof(int));}| DOUBLE {$$ = Type(Type::Floating, sizeof(double));} | CHAR {$$ = Type(Type::Char, 1);} | CHAR PI NUM PD {$$ = Type(Type::Char, $3);}| BOOL {$$ = Type(Type::Bool, sizeof(bool));}
@@ -164,9 +166,8 @@ COLUMNS:            COLUMNS SEP ID {$1->push_back($3); $$ = $1;} | ID {$$ = new 
 CONDITIONALS:       /*  */ {$$ = nullptr;}
                     | WHERE CONDITION_LIST {$$ = $2;};
 
-/* CONDITION_LIST:     CONDITION_LIST AND FACTOR_CONDITION | FACTOR_CONDITION;
-FACTOR_CONDITION:   FACTOR_CONDITION OR CONDITION | CONDITION; */
-CONDITION_LIST:     CONDITION {$$ = $1;}
+CONDITION_LIST:     CONDITION_LIST OR FACTOR_CONDITION {$$ = $1; $$.push_front($3);} | FACTOR_CONDITION {$$.push_front($1);}
+FACTOR_CONDITION:   FACTOR_CONDITION AND CONDITION {$$ = $1; $$.push_front($3);} | CONDITION {$$.push_front($1);};
 CONDITION:          ID EQUAL INPLACE_VALUE {$$ = new condition_t($1, EQUAL, $3);}
                     | ID RANGE_OPERATOR INPLACE_VALUE {$$ = new condition_t($1, $2, $3);}
 
