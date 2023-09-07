@@ -23,20 +23,17 @@ public:
 
   void parse(const char *filename);
 
-  std::vector<std::string> parse(std::istream &iss);
+  std::vector<std::string>& parse(std::istream &iss);
 
-  void insert();
-  void del();
-  void exec();
+  void checkTableName(const std::string& tablename);
 
   void createTable(std::string &tablename,
                    const std::vector<column_t *> &columns);
 
-  void select(std::string &tablename,
-              std::vector<std::string> *column_names);
+  void select(std::string &tablename, std::vector<std::string> *column_names, std::list<std::list<condition_t>>& constraints);
 private:
   DBEngine& engine;
-  std::vector<std::string> reponse;
+  std::vector<std::string> response;
   void parse_helper(std::istream &stream);
   std::unordered_set<std::string> tablenames;
   yy::parser *parser = nullptr;

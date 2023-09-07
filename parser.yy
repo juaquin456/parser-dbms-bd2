@@ -7,6 +7,7 @@
     #include <string>
     #include <utility>
 
+    #include <list>
     #include <string>
     #include <cstring>
     #include <utility>
@@ -77,6 +78,18 @@
         condition_t() = default;
         condition_t(const std::string& column, Comp comparator, const std::string& value):
             column(column), c(comparator), value(value) {}
+        condition_t(const condition_t& another) {
+            this->c = another.c;
+            this->column = another.column;
+            this->value = another.value;
+        }
+
+        condition_t& operator=(const condition_t& another) {
+            this->c = another.c;
+            this->column = another.column;
+            this->value = another.value;
+            return *this;
+        }
     };
 
 
@@ -102,7 +115,6 @@
     #include <cstdlib>
     #include <fstream>
     #include <vector>
-    #include <list>
     #include "SqlParser.hpp"
 
     #undef yylex
@@ -129,10 +141,10 @@
 %type <Type> TYPE
 
 %type <std::string> INPLACE_VALUE
-%type <condition_t*> CONDITION
-%type <std::list<std::list<condition_t*>>> CONDITION_LIST
-%type <std::list<condition_t*>> FACTOR_CONDITION
-%type <condition_t*> CONDITIONALS
+%type <condition_t> CONDITION
+%type <std::list<std::list<condition_t>>> CONDITION_LIST
+%type <std::list<condition_t>> FACTOR_CONDITION
+%type <std::list<std::list<condition_t>>> CONDITIONALS
 %locations
 
 %%
@@ -145,16 +157,16 @@ SENTENCE:           INSERT_TYPE | DELETE_TYPE | UPDATE_TYPE | CREATE_TYPE | SELE
 INPLACE_VALUE:      STRING      {$$ = $1;} 
                     | NUM       {$$ = std::to_string($1);} 
                     | FLOATING  {$$ = std::to_string($1);};
-VALUE:               ID | INPLACE_VALUE;
-PARAMS:         INPLACE_VALUE SEP PARAMS | INPLACE_VALUE;
+VALUE:              ID | INPLACE_VALUE;
+PARAMS:             INPLACE_VALUE SEP PARAMS | INPLACE_VALUE;
 RANGE_OPERATOR:     GE {$$ = GE;}| G {$$ = G;}| LE {$$ = LE;}| L {$$ = L;};
 /* SENTECES TYPE */
 
 INSERT_TYPE:        INSERT INTO ID VALUES PI PARAMS PD;
 DELETE_TYPE:        DELETE FROM ID CONDITIONALS;
 UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS;
-CREATE_TYPE:        CREATE TABLE ID  PI CREATE_LIST PD {dr.createTable($3, $5);}
-SELECT_TYPE:        SELECT COLUMNS FROM ID CONDITIONALS
+CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.createTable($3, $5);}
+SELECT_TYPE:        SELECT COLUMNS FROM ID {dr.checkTableName($4);} CONDITIONALS {dr.select($4, $2, $6);};
 
 /* TYPES */
 TYPE:               INT {$$ = Type(Type::Numeric, sizeof(int));}| DOUBLE {$$ = Type(Type::Floating, sizeof(double));} | CHAR {$$ = Type(Type::Char, 1);} | CHAR PI NUM PD {$$ = Type(Type::Char, $3);}| BOOL {$$ = Type(Type::Bool, sizeof(bool));}
@@ -163,13 +175,13 @@ TYPE:               INT {$$ = Type(Type::Numeric, sizeof(int));}| DOUBLE {$$ = T
 COLUMNS:            COLUMNS SEP ID {$1->push_back($3); $$ = $1;} | ID {$$ = new std::vector<std::string>{$1};}
 
 /* CONDITIONS */
-CONDITIONALS:       /*  */ {$$ = nullptr;}
+CONDITIONALS:       /*  */ {}
                     | WHERE CONDITION_LIST {$$ = $2;};
 
 CONDITION_LIST:     CONDITION_LIST OR FACTOR_CONDITION {$$ = $1; $$.push_front($3);} | FACTOR_CONDITION {$$.push_front($1);}
 FACTOR_CONDITION:   FACTOR_CONDITION AND CONDITION {$$ = $1; $$.push_front($3);} | CONDITION {$$.push_front($1);};
-CONDITION:          ID EQUAL INPLACE_VALUE {$$ = new condition_t($1, EQUAL, $3);}
-                    | ID RANGE_OPERATOR INPLACE_VALUE {$$ = new condition_t($1, $2, $3);}
+CONDITION:          ID EQUAL INPLACE_VALUE {$$ = condition_t($1, EQUAL, $3);}
+                    | ID RANGE_OPERATOR INPLACE_VALUE {$$ = condition_t($1, $2, $3);}
 
 /* UPDATE PARAMETERS */
 SET_LIST:           SET_LIST SEP SET_UNIT | SET_UNIT;
