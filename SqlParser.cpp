@@ -1,9 +1,13 @@
+#include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <fstream>
 #include <functional>
+#include <ranges>
 
 #include "SqlParser.hpp"
+
+#include "../../include/DBEngine/DBEngine.hpp"
 
 const std::string METADATA_PATH = "./meta.data";
 
@@ -74,95 +78,136 @@ void SqlParser::parse_helper(std::istream &stream) {
 }
 
 void SqlParser::checkTableName(const std::string &tablename) {
-  this->engine.checkTableName(tablename);
+  if (!this->engine.is_table(tablename)) {
+    throw std::runtime_error("Table not exists");
+  }
 }
 
-void SqlParser::createTable(std::string &tablename,
+void SqlParser::createTable(const std::string &tablename,
                             const std::vector<column_t *> &columns) {
-  std::vector<Type> types(columns.size());
-  std::vector<std::string> col_names(columns.size());
 
-  // this->engine.create_table(tablename, );
-  /* if (this->tablenames.find(tablename) != nullptr) {
-    std::cerr << "Table already exist\n";
-    exit(EXIT_FAILURE);
+  std::vector<Type> col_types;
+  std::vector<std::string> col_names;
+
+  std::string primary_key;
+
+  col_types.reserve(columns.size());
+  col_names.reserve(columns.size());
+
+  for (const auto &col : columns) {
+    if (col->is_pk) {
+      primary_key = col->name;
+    }
+
+    col_types.push_back(col->type);
+    col_names.push_back(col->name);
   }
-  this->tablenames.insert(tablename);
 
-  std::ofstream metadata(METADATA_PATH, std::ios::binary | std::ios::app);
-  metadata.seekp(0, std::ios::end);
-  metadata.write(tablename.c_str(), 64);
-  metadata.close();
-
-  std::ofstream tablefile(tablename + ".bin", std::ios::app);
-  for (auto &column : columns) {
-    tablefile.write((char *)&*column, sizeof(*column));
-    delete column;
+  if (!engine.create_table(tablename, primary_key, col_types, col_names)) {
+    throw std::runtime_error("Table already exists");
   }
-  tablefile.close(); */
 }
 
-void SqlParser::select(std::string &tablename,
-                       std::vector<std::string> *column_names,
-                       std::list<std::list<condition_t>> &constraints) {
-  auto &table = this->engine.get_index(tablename);
+void SqlParser::select(const std::string &tablename,
+                       const std::vector<std::string> &column_names,
+                       const std::list<std::list<condition_t>> &constraints) {
+  auto table_attributes = this->engine.get_table_attributes(tablename);
+
+  std::vector<std::string> response;
 
   // check if col exists
-  for (auto &col : column_names) {
-    if (table.find(col) == nullptr) {
-      std::cerr << "Column " << col << " not exists\n";
-      throw 2;
-    }
+  if (std::ranges::any_of(column_names, [&](const auto &col) {
+        return std::ranges::find(table_attributes, col) ==
+               table_attributes.end();
+      })) {
+    throw std::runtime_error("Column doesn't exist");
   }
 
-  for (auto it = constraints.begin(); it != constraints.end(); it++) {
-    condition_t *constraint_key;
-    std::function<bool(std::string)> lamb = [](std::string rec) {
+  // Iterating OR constraints
+  for (const auto &or_constraint : constraints) {
+
+    condition_t constraint_key;
+
+    std::function<bool(const Record &rec)> lamb = [](const Record & /*rec*/) {
       return true;
     };
 
-    for (auto it2 = it->begin(); it2 != it->end(); it2++) {
+    // Iterating the AND contraints
+    for (const auto &column_constraint : or_constraint) {
       // Checkear si el constraint actual tiene un indice asociado
       // si lo tiene, asignar al constraint_key
       // si no, construir un predicado con los operadores;
-      auto &index = table.find(it2->column);
-      if (index.size() != 0) {
 
+      auto indexes = this->engine.get_indexes_names(tablename);
+
+      // If the column doesnt has an index
+      if (std::ranges::find(indexes, column_constraint.column_name) ==
+          indexes.end()) {
+
+        auto record_comp = engine.get_comparator(tablename, column_constraint.c,
+                                                 column_constraint.column_name);
+
+        lamb = [&lamb, &record_comp, &column_constraint](const Record &rec) {
+          return lamb(rec) && record_comp(column_constraint.value);
+        };
       } else {
-        switch (it2->c) {
-        case EQUAL:
-          lamb = [it2, lamb](std::string rec) {
-            return lamb(rec) && rec == it2->value;
-          };
-          break;
-        case GE:
-          lamb = [it2, lamb](std::string rec) {
-            return lamb(rec) && rec >= it2->value;
-          };
-          break;
-        case G:
-          lamb = [it2, lamb](std::string rec) {
-            return lamb(rec) && rec > it2->value;
-          };
-          break;
-        case LE:
-          lamb = [it2, lamb](std::string rec) {
-            return lamb(rec) && rec <= it2->value;
-          };
-          break;
-        case L:
-          lamb = [it2, lamb](std::string rec) {
-            return lamb(rec) && rec < it2->value;
-          };
-          break;
-        default:
-          break;
+        // If the column has an index and the constraint_key is empty
+        if (constraint_key.column_name.empty()) {
+          constraint_key = column_constraint;
         }
       }
     }
-    // if (constraint_key->c == EQUAL)
-    //   this->engine.search(tablename, constraint_key->value, lamb);
-    // else
-    // this->engine.range_search(tablename,);
+
+    if (constraint_key.c == Comp::EQUAL) {
+
+      auto or_response = engine.search(
+          tablename, {constraint_key.column_name, constraint_key.value}, lamb,
+          column_names);
+    } else {
+
+      Attribute begin_key = KEY_LIMITS::MIN;
+      Attribute end_key = KEY_LIMITS::MAX;
+
+      switch (constraint_key.c) {
+      case Comp::L:
+        end_key = {constraint_key.column_name, constraint_key.value};
+        break;
+      case Comp::G:
+        begin_key = {constraint_key.column_name, constraint_key.value};
+        break;
+      case Comp::GE:
+        begin_key = {constraint_key.column_name, constraint_key.value};
+        break;
+      case Comp::LE:
+        end_key = {constraint_key.column_name, constraint_key.value};
+        break;
+      }
+
+      auto or_response = engine.range_search(tablename, begin_key, end_key,
+                                             lamb, column_names);
+
+      response = merge_vectors(response, or_response);
+    }
   }
+}
+
+auto SqlParser::merge_vectors(const std::vector<std::string> &vec1,
+                              const std::vector<std::string> &vec2)
+    -> std::vector<std::string> {
+
+  std::vector<std::string> result;
+  result.reserve(vec1.size() + vec2.size());
+
+  result.insert(result.end(), vec1.begin(), vec1.end());
+
+  std::unordered_set<std::string> uniqueElements(vec1.begin(), vec1.end());
+
+  for (const auto &element : vec2) {
+    if (uniqueElements.find(element) == uniqueElements.end()) {
+      result.push_back(element);
+      uniqueElements.insert(element);
+    }
+  }
+
+  return result;
 }

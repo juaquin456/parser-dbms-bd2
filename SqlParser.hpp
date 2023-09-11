@@ -23,7 +23,7 @@ public:
 
   void checkTableName(const std::string &tablename);
 
-  void createTable(std::string &tablename,
+  void createTable(const std::string &tablename,
                    const std::vector<column_t *> &columns);
 
   void select(const std::string &tablename,
@@ -37,6 +37,10 @@ private:
   std::unordered_set<std::string> tablenames;
   yy::parser *parser = nullptr;
   scanner *sc = nullptr;
+
+  static auto merge_vectors(const std::vector<std::string> &vec1,
+                            const std::vector<std::string> &vec2)
+      -> std::vector<std::string>;
 };
 
 #endif // SQL_PARSER_HPP
