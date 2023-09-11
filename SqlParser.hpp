@@ -11,28 +11,27 @@
 #include "parser.tab.hh"
 #include "scanner.hpp"
 
-struct column_t;
-
-class DBEngine;
-
 class SqlParser {
 public:
-  SqlParser(DBEngine& dbengine);
+  SqlParser(DBEngine &dbengine);
 
   virtual ~SqlParser();
 
   void parse(const char *filename);
 
-  std::vector<std::string>& parse(std::istream &iss);
+  std::vector<std::string> &parse(std::istream &iss);
 
-  void checkTableName(const std::string& tablename);
+  void checkTableName(const std::string &tablename);
 
   void createTable(std::string &tablename,
                    const std::vector<column_t *> &columns);
 
-  void select(std::string &tablename, std::vector<std::string> *column_names, std::list<std::list<condition_t>>& constraints);
+  void select(const std::string &tablename,
+              const std::vector<std::string> &column_names,
+              const std::list<std::list<condition_t>> &constraints);
+
 private:
-  DBEngine& engine;
+  DBEngine &engine;
   std::vector<std::string> response;
   void parse_helper(std::istream &stream);
   std::unordered_set<std::string> tablenames;

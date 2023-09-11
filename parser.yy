@@ -12,84 +12,24 @@
     #include <cstring>
     #include <utility>
 
-
-    struct Type {        
-        enum Enum {
-            Bool,
-            Numeric,
-            Floating,
-            Char
-        };
-
-        size_t size;
-        Enum value;
-
-        Type() = default;
-        Type(Enum e, const size_t& _size): size(_size), value(e) {}
-        Type(const Type& t) {
-            this->size = t.size;
-            this->value = t.value;
-        }
-        Type& operator=(const Type& t) {
-            this->size = t.size;
-            this->value = t.value;
-            return *this;
-        }
-    };
+    #include "../../include/DBEngine/DBEngine.hpp"
 
     struct column_t {
         std::string name;
         Type type;
         bool is_pk;
-        column_t(const std::string& name, const Type& type, const bool& is_pk): name(name), type(type), is_pk(is_pk) {}
-    };
-
-    struct Inplace {
-        char* data;
-        Type type;
-
-        Inplace() = default;
-
-        template<typename T>
-        Inplace(T value, const Type& _type) {
-            this->data = new char[_type.size];
-            memcpy(this->data, value, _type.size);
-            this->type = _type;
-        }
-        Inplace(const Inplace& another) {
-            this->data = another.data;
-            this->type = another.type;
-        }
+        column_t(const std::string& _name, const Type& _type, const bool& _is_pk): name(_name), type(_type), is_pk(_is_pk) {}
     };
     
-    enum Comp {
-        EQUAL,
-        GE,
-        LE,
-        G,
-        L
-    };
 
     struct condition_t {
+        std::string column_name;
         Comp c;
-        std::string column;
         std::string value;
 
         condition_t() = default;
-        condition_t(const std::string& column, Comp comparator, const std::string& value):
-            column(column), c(comparator), value(value) {}
-        condition_t(const condition_t& another) {
-            this->c = another.c;
-            this->column = another.column;
-            this->value = another.value;
-        }
-
-        condition_t& operator=(const condition_t& another) {
-            this->c = another.c;
-            this->column = another.column;
-            this->value = another.value;
-            return *this;
-        }
+        condition_t(const std::string& _column_name, Comp comparator, const std::string& _value):
+            column_name(_column_name), c(comparator), value(_value) {}
     };
 
 
@@ -134,7 +74,7 @@
 
 %type <Comp> RANGE_OPERATOR
 
-%type <std::vector<std::string>*> COLUMNS
+%type <std::vector<std::string>> COLUMNS
 
 %type <std::vector<column_t*>> CREATE_LIST
 %type <column_t*> CREATE_UNIT
@@ -150,7 +90,7 @@
 %%
 
 PROGRAM:            /*  */
-                    | SENTENCE ENDL {dr.exec();} PROGRAM;
+                    | SENTENCE ENDL PROGRAM;
 
 SENTENCE:           INSERT_TYPE | DELETE_TYPE | UPDATE_TYPE | CREATE_TYPE | SELECT_TYPE;
 
@@ -169,10 +109,10 @@ CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.createTable($3, $5);}
 SELECT_TYPE:        SELECT COLUMNS FROM ID {dr.checkTableName($4);} CONDITIONALS {dr.select($4, $2, $6);};
 
 /* TYPES */
-TYPE:               INT {$$ = Type(Type::Numeric, sizeof(int));}| DOUBLE {$$ = Type(Type::Floating, sizeof(double));} | CHAR {$$ = Type(Type::Char, 1);} | CHAR PI NUM PD {$$ = Type(Type::Char, $3);}| BOOL {$$ = Type(Type::Bool, sizeof(bool));}
+TYPE:               INT {$$ = Type(Type::INT);}| DOUBLE {$$ = Type(Type::FLOAT);} | CHAR {$$ = Type(Type::VARCHAR, 1);} | CHAR PI NUM PD {$$ = Type(Type::VARCHAR, $3);}| BOOL {$$ = Type(Type::BOOL);}
 
 /* COLUMN NAMES */
-COLUMNS:            COLUMNS SEP ID {$1->push_back($3); $$ = $1;} | ID {$$ = new std::vector<std::string>{$1};}
+COLUMNS:            COLUMNS SEP ID {$1.push_back($3); $$ = $1;} | ID {$$ = std::vector<std::string>{$1};}
 
 /* CONDITIONS */
 CONDITIONALS:       /*  */ {}
