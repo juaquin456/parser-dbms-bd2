@@ -208,3 +208,7 @@ auto SqlParser::merge_vectors(const std::vector<std::string> &vec1,
 
   return result;
 }
+
+void SqlParser::insert_from_file(const std::string &tablename, const std::string &filename) {
+  std::cout << filename << std::endl;
+}

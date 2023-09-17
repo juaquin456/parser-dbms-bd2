@@ -30,6 +30,8 @@ public:
               const std::vector<std::string> &column_names,
               const std::list<std::list<condition_t>> &constraints);
 
+  void insert_from_file(const std::string &tablename, const std::string &filename);
+
 private:
   DBEngine m_engine;
   std::vector<std::string> m_response;
