@@ -35,7 +35,7 @@ target_compile_options(
     # Prefered warnings
     $<$<CXX_COMPILER_ID:MSVC>:/W4
     /WX>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Werror
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>: #[[ -Werror ]]
     -Wall
     -Wextra
     -Wpedantic
@@ -46,10 +46,10 @@ target_compile_options(
     -Wcast-align
     -Wconversion>
     # Disable some warnings
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-suggest-destructor-override>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-deprecated-register> # WHY?
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat-pedantic>
+    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-suggest-destructor-override>
+    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-deprecated-register> # WHY?
+    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat>
+    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat-pedantic>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++20-compat>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-zero-as-null-pointer-constant> # Solves a
                                                                          # bug,
