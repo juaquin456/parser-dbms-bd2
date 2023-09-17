@@ -29,12 +29,10 @@
 //   metadata.close();
 // }
 //
-// SqlParser::~SqlParser() {
-//   delete sc;
-//   sc = nullptr;
-//   delete parser;
-//   parser = nullptr;
-// }
+SqlParser::~SqlParser() {
+  delete m_sc;
+  delete m_parser;
+}
 
 void SqlParser::parse(const char *filename) {
   assert(filename != nullptr);

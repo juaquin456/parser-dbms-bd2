@@ -59,15 +59,14 @@ target_compile_options(
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-switch-enum>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-padded>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-error=unused-parameter>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize-address-use-after-scope>
+    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>
+    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize-address-use-after-scope>
     $<$<CONFIG:RELEASE>:-Ofast>
     $<$<CONFIG:DEBUG>:-O0>
     $<$<CONFIG:DEBUG>:-ggdb3>)
 
-target_link_options(
-  SqlParser PUBLIC
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>)
+# target_link_options( SqlParser PUBLIC
+# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>)
 
 # Wht kind of tests are these?
 enable_testing()

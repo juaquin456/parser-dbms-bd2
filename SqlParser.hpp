@@ -15,7 +15,7 @@ class SqlParser {
 public:
   SqlParser() = default;
 
-  // virtual ~SqlParser();
+  ~SqlParser();
 
   void parse(const char *filename);
 
@@ -29,6 +29,7 @@ public:
   void select(const std::string &tablename,
               const std::vector<std::string> &column_names,
               const std::list<std::list<condition_t>> &constraints);
+  auto get_engine() -> DBEngine & { return m_engine; }
 
 private:
   DBEngine m_engine;
