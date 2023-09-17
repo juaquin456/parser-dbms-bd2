@@ -31,6 +31,8 @@ public:
               const std::list<std::list<condition_t>> &constraints);
   auto get_engine() -> DBEngine & { return m_engine; }
 
+  void insert_from_file(const std::string &tablename, const std::string &filename);
+
 private:
   DBEngine m_engine;
   std::vector<std::string> m_response;
