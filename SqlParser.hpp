@@ -13,30 +13,31 @@
 
 class SqlParser {
 public:
-  SqlParser(DBEngine &dbengine);
+  SqlParser() = default;
 
-  virtual ~SqlParser();
+  // virtual ~SqlParser();
 
   void parse(const char *filename);
 
-  std::vector<std::string> &parse(std::istream &iss);
+  auto parse(std::istream &stream) -> std::vector<std::string> &;
 
-  void checkTableName(const std::string &tablename);
+  void check_table_name(const std::string &tablename);
 
-  void createTable(const std::string &tablename,
-                   const std::vector<column_t *> &columns);
+  void create_table(const std::string &tablename,
+                    const std::vector<column_t *> &columns);
 
   void select(const std::string &tablename,
               const std::vector<std::string> &column_names,
               const std::list<std::list<condition_t>> &constraints);
 
 private:
-  DBEngine &engine;
-  std::vector<std::string> response;
+  DBEngine m_engine;
+  std::vector<std::string> m_response;
+
   void parse_helper(std::istream &stream);
-  std::unordered_set<std::string> tablenames;
-  yy::parser *parser = nullptr;
-  scanner *sc = nullptr;
+  std::unordered_set<std::string> m_tablenames;
+  yy::parser *m_parser = nullptr;
+  scanner *m_sc = nullptr;
 
   static auto merge_vectors(const std::vector<std::string> &vec1,
                             const std::vector<std::string> &vec2)

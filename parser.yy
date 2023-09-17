@@ -12,7 +12,7 @@
     #include <cstring>
     #include <utility>
 
-    #include "../../include/DBEngine/DBEngine.hpp"
+    #include "DBEngine.hpp"
 
     struct column_t {
         std::string name;
@@ -21,7 +21,6 @@
         column_t(const std::string& _name, const Type& _type, const bool& _is_pk): name(_name), type(_type), is_pk(_is_pk) {}
     };
     
-
     struct condition_t {
         std::string column_name;
         Comp c;
@@ -105,8 +104,8 @@ RANGE_OPERATOR:     GE {$$ = GE;}| G {$$ = G;}| LE {$$ = LE;}| L {$$ = L;};
 INSERT_TYPE:        INSERT INTO ID VALUES PI PARAMS PD;
 DELETE_TYPE:        DELETE FROM ID CONDITIONALS;
 UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS;
-CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.createTable($3, $5);}
-SELECT_TYPE:        SELECT COLUMNS FROM ID {dr.checkTableName($4);} CONDITIONALS {dr.select($4, $2, $6);};
+CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.create_table($3, $5);}
+SELECT_TYPE:        SELECT COLUMNS FROM ID {dr.check_table_name($4);} CONDITIONALS {dr.select($4, $2, $6);};
 
 /* TYPES */
 TYPE:               INT {$$ = Type(Type::INT);}| DOUBLE {$$ = Type(Type::FLOAT);} | CHAR {$$ = Type(Type::VARCHAR, 1);} | CHAR PI NUM PD {$$ = Type(Type::VARCHAR, $3);}| BOOL {$$ = Type(Type::BOOL);}

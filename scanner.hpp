@@ -1,5 +1,5 @@
-#ifndef __SCANNER_HPP__
-#define __SCANNER_HPP__ 1
+#ifndef SCANNER_HPP
+#define SCANNER_HPP 1
 
 #if !defined(yyFlexLexerOnce)
 #include <FlexLexer.h>
@@ -12,7 +12,7 @@ class scanner : public yyFlexLexer {
 public:
   scanner(std::istream *in) : yyFlexLexer(in) {
     loc = new yy::parser::location_type();
-  };
+  }
 
   using FlexLexer::yylex;
 
@@ -24,4 +24,4 @@ private:
   yy::parser::location_type *loc = nullptr;
 };
 
-#endif
+#endif // SCANNER_HPP

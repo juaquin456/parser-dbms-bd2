@@ -7,34 +7,34 @@
 
 #include "SqlParser.hpp"
 
-#include "../../include/DBEngine/DBEngine.hpp"
+// #include "../../include/DBEngine/DBEngine.hpp"
 
-const std::string METADATA_PATH = "./meta.data";
+// const std::string METADATA_PATH = "./meta.data";
 
-SqlParser::SqlParser(DBEngine &dbengine) : engine(dbengine) {
-  std::ifstream metadata(METADATA_PATH, std::ios::app | std::ios::binary);
-  if (!metadata.is_open()) {
-    std::cerr << "Can't open meta.data\n";
-    exit(EXIT_FAILURE);
-  }
-
-  // Load all tablenames in memory
-  metadata.seekg(0);
-  while (metadata.peek() != EOF) {
-    char name[64];
-    metadata.read(name, 64);
-    this->tablenames.insert(name);
-  }
-
-  metadata.close();
-}
-
-SqlParser::~SqlParser() {
-  delete sc;
-  sc = nullptr;
-  delete parser;
-  parser = nullptr;
-}
+// SqlParser::SqlParser(DBEngine &dbengine) : engine(dbengine) {
+//   std::ifstream metadata(METADATA_PATH, std::ios::app | std::ios::binary);
+//   if (!metadata.is_open()) {
+//     std::cerr << "Can't open meta.data\n";
+//     exit(EXIT_FAILURE);
+//   }
+//
+//   // Load all tablenames in memory
+//   metadata.seekg(0);
+//   while (metadata.peek() != EOF) {
+//     char name[64];
+//     metadata.read(name, 64);
+//     this->tablenames.insert(name);
+//   }
+//
+//   metadata.close();
+// }
+//
+// SqlParser::~SqlParser() {
+//   delete sc;
+//   sc = nullptr;
+//   delete parser;
+//   parser = nullptr;
+// }
 
 void SqlParser::parse(const char *filename) {
   assert(filename != nullptr);
@@ -45,46 +45,46 @@ void SqlParser::parse(const char *filename) {
   parse_helper(in_file);
 }
 
-std::vector<std::string> &SqlParser::parse(std::istream &stream) {
+auto SqlParser::parse(std::istream &stream) -> std::vector<std::string> & {
   if (!stream.good() && stream.eof()) {
-    return this->response;
+    return this->m_response;
   }
   parse_helper(stream);
-  return this->response;
+  return this->m_response;
 }
 
 void SqlParser::parse_helper(std::istream &stream) {
-  delete (sc);
+  delete (m_sc);
   try {
-    sc = new scanner(&stream);
+    m_sc = new scanner(&stream);
   } catch (std::bad_alloc &ba) {
     std::cerr << "Failed to allocate scanner: (" << ba.what()
               << "), exiting!!\n";
     exit(EXIT_FAILURE);
   }
-  delete (parser);
+  delete (m_parser);
   try {
-    parser = new yy::parser((*sc), (*this));
+    m_parser = new yy::parser((*m_sc), (*this));
   } catch (std::bad_alloc &ba) {
     std::cerr << "Failed to allocate parser: (" << ba.what()
               << "), exiting!!\n";
     exit(EXIT_FAILURE);
   }
 
-  const int accept(0);
-  if (parser->parse() != accept) {
+  const int ACCEPT(0);
+  if (m_parser->parse() != ACCEPT) {
     std::cerr << "Parse failed!!\n";
   }
 }
 
-void SqlParser::checkTableName(const std::string &tablename) {
-  if (!this->engine.is_table(tablename)) {
+void SqlParser::check_table_name(const std::string &tablename) {
+  if (!this->m_engine.is_table(tablename)) {
     throw std::runtime_error("Table not exists");
   }
 }
 
-void SqlParser::createTable(const std::string &tablename,
-                            const std::vector<column_t *> &columns) {
+void SqlParser::create_table(const std::string &tablename,
+                             const std::vector<column_t *> &columns) {
 
   std::vector<Type> col_types;
   std::vector<std::string> col_names;
@@ -103,7 +103,7 @@ void SqlParser::createTable(const std::string &tablename,
     col_names.push_back(col->name);
   }
 
-  if (!engine.create_table(tablename, primary_key, col_types, col_names)) {
+  if (!m_engine.create_table(tablename, primary_key, col_types, col_names)) {
     throw std::runtime_error("Table already exists");
   }
 }
@@ -111,9 +111,7 @@ void SqlParser::createTable(const std::string &tablename,
 void SqlParser::select(const std::string &tablename,
                        const std::vector<std::string> &column_names,
                        const std::list<std::list<condition_t>> &constraints) {
-  auto table_attributes = this->engine.get_table_attributes(tablename);
-
-  std::vector<std::string> response;
+  auto table_attributes = this->m_engine.get_table_attributes(tablename);
 
   // check if col exists
   if (std::ranges::any_of(column_names, [&](const auto &col) {
@@ -138,17 +136,18 @@ void SqlParser::select(const std::string &tablename,
       // si lo tiene, asignar al constraint_key
       // si no, construir un predicado con los operadores;
 
-      auto indexes = this->engine.get_indexes_names(tablename);
+      auto indexes = this->m_engine.get_indexes_names(tablename);
 
       // If the column doesnt has an index
       if (std::ranges::find(indexes, column_constraint.column_name) ==
           indexes.end()) {
 
-        auto record_comp = engine.get_comparator(tablename, column_constraint.c,
-                                                 column_constraint.column_name);
+        auto record_comp = m_engine.get_comparator(
+            tablename, column_constraint.c, column_constraint.column_name,
+            column_constraint.value);
 
-        lamb = [&lamb, &record_comp, &column_constraint](const Record &rec) {
-          return lamb(rec) && record_comp(column_constraint.value);
+        lamb = [&lamb, &record_comp](const Record &rec) {
+          return lamb(rec) && record_comp(rec);
         };
       } else {
         // If the column has an index and the constraint_key is empty
@@ -160,7 +159,7 @@ void SqlParser::select(const std::string &tablename,
 
     if (constraint_key.c == Comp::EQUAL) {
 
-      auto or_response = engine.search(
+      auto or_response = m_engine.search(
           tablename, {constraint_key.column_name, constraint_key.value}, lamb,
           column_names);
     } else {
@@ -170,23 +169,21 @@ void SqlParser::select(const std::string &tablename,
 
       switch (constraint_key.c) {
       case Comp::L:
-        end_key = {constraint_key.column_name, constraint_key.value};
-        break;
-      case Comp::G:
-        begin_key = {constraint_key.column_name, constraint_key.value};
-        break;
-      case Comp::GE:
-        begin_key = {constraint_key.column_name, constraint_key.value};
-        break;
       case Comp::LE:
         end_key = {constraint_key.column_name, constraint_key.value};
         break;
+      case Comp::G:
+      case Comp::GE:
+        begin_key = {constraint_key.column_name, constraint_key.value};
+        break;
+      case Comp::EQUAL:
+        break;
       }
 
-      auto or_response = engine.range_search(tablename, begin_key, end_key,
-                                             lamb, column_names);
+      auto or_response = m_engine.range_search(tablename, begin_key, end_key,
+                                               lamb, column_names);
 
-      response = merge_vectors(response, or_response);
+      m_response = merge_vectors(m_response, or_response);
     }
   }
 }
@@ -200,12 +197,12 @@ auto SqlParser::merge_vectors(const std::vector<std::string> &vec1,
 
   result.insert(result.end(), vec1.begin(), vec1.end());
 
-  std::unordered_set<std::string> uniqueElements(vec1.begin(), vec1.end());
+  std::unordered_set<std::string> unique_elements(vec1.begin(), vec1.end());
 
   for (const auto &element : vec2) {
-    if (uniqueElements.find(element) == uniqueElements.end()) {
+    if (unique_elements.find(element) == unique_elements.end()) {
       result.push_back(element);
-      uniqueElements.insert(element);
+      unique_elements.insert(element);
     }
   }
 
