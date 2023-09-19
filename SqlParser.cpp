@@ -84,7 +84,7 @@ void SqlParser::check_table_name(const std::string &tablename) {
 }
 
 void SqlParser::create_table(const std::string &tablename,
-                             const std::vector<column_t *> &columns) {
+                             const std::vector<column_t> &columns) {
 
   std::vector<Type> col_types;
   std::vector<std::string> col_names;
@@ -95,12 +95,12 @@ void SqlParser::create_table(const std::string &tablename,
   col_names.reserve(columns.size());
 
   for (const auto &col : columns) {
-    if (col->is_pk) {
-      primary_key = col->name;
+    if (col.is_pk) {
+      primary_key = col.name;
     }
 
-    col_types.push_back(col->type);
-    col_names.push_back(col->name);
+    col_types.push_back(col.type);
+    col_names.push_back(col.name);
   }
 
   if (!m_engine.create_table(tablename, primary_key, col_types, col_names)) {

@@ -24,7 +24,7 @@ public:
   void check_table_name(const std::string &tablename);
 
   void create_table(const std::string &tablename,
-                    const std::vector<column_t *> &columns);
+                    const std::vector<column_t> &columns);
 
   void select(const std::string &tablename,
               const std::vector<std::string> &column_names,

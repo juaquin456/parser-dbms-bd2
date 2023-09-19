@@ -20,6 +20,7 @@
         std::string name;
         Type type;
         bool is_pk;
+        column_t() = default;
         column_t(const std::string& _name, const Type& _type, const bool& _is_pk): name(_name), type(_type), is_pk(_is_pk) {}
     };
     
@@ -77,8 +78,8 @@
 
 %type <std::vector<std::string>> COLUMNS
 
-%type <std::vector<column_t*>> CREATE_LIST
-%type <column_t*> CREATE_UNIT
+%type <std::vector<column_t>> CREATE_LIST
+%type <column_t> CREATE_UNIT
 %type <Type> TYPE
 
 %type <std::string> INPLACE_VALUE
@@ -129,9 +130,9 @@ SET_LIST:           SET_LIST SEP SET_UNIT | SET_UNIT;
 SET_UNIT:           ID EQUAL VALUE;
 
 /* CREATE TABLE PARAMETERS */
-CREATE_LIST:        CREATE_LIST SEP CREATE_UNIT {$$ = $1; $$.push_back($3);} | CREATE_UNIT {$$.push_back($1);}; // TODO: Optimize copy
-CREATE_UNIT:        ID TYPE { $$ = new column_t($1, $2, 0);}
-                    | ID TYPE PK { $$ = new column_t($1, $2, 1);}
+CREATE_LIST:        CREATE_LIST SEP CREATE_UNIT {$$ = $1; $$.push_back(std::move($3));} | CREATE_UNIT {$$.push_back(std::move($1));}; // TODO: Optimize copy
+CREATE_UNIT:        ID TYPE { $$ = column_t($1, $2, 0);}
+                    | ID TYPE PK { $$ = column_t($1, $2, 1);}
 %%
 
 void yy::parser::error(const location_type &l, const std::string &message){

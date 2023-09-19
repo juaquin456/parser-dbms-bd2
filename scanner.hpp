@@ -14,6 +14,8 @@ public:
     loc = new yy::parser::location_type();
   }
 
+  ~scanner() override { delete loc; }
+
   using FlexLexer::yylex;
 
   virtual int yylex(yy::parser::semantic_type *const lval,
