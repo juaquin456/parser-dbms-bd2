@@ -44,12 +44,11 @@ target_compile_options(
     -Wwrite-strings
     -Wcast-qual
     -Wcast-align
-    -Wconversion>
-    # Disable some warnings
-    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-suggest-destructor-override>
-    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-deprecated-register> # WHY?
-    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat>
-    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat-pedantic>
+    -Wconversion> # Disable some warnings #
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-suggest-destructor-override>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-deprecated-register> # WHY?
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat-pedantic>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++20-compat>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-zero-as-null-pointer-constant> # Solves a
                                                                          # bug,
@@ -59,14 +58,15 @@ target_compile_options(
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-switch-enum>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-padded>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-error=unused-parameter>
-    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>
-    # $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize-address-use-after-scope>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize-address-use-after-scope>
     $<$<CONFIG:RELEASE>:-Ofast>
     $<$<CONFIG:DEBUG>:-O0>
     $<$<CONFIG:DEBUG>:-ggdb3>)
 
-# target_link_options( SqlParser PUBLIC
-# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>)
+target_link_options(
+  SqlParser PUBLIC
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>)
 
 # Wht kind of tests are these?
 enable_testing()

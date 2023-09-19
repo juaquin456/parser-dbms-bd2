@@ -14,6 +14,8 @@
 
     #include "DBEngine.hpp"
 
+    using namespace DB_ENGINE;
+
     struct column_t {
         std::string name;
         Type type;

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <functional>
 #include <ranges>
+#include <spdlog/spdlog.h>
 
 #include "SqlParser.hpp"
 
@@ -76,6 +77,7 @@ void SqlParser::parse_helper(std::istream &stream) {
 }
 
 void SqlParser::check_table_name(const std::string &tablename) {
+  spdlog::info("Cheking Table : {}", tablename);
   if (!this->m_engine.is_table(tablename)) {
     throw std::runtime_error("Table not exists");
   }
@@ -124,9 +126,8 @@ void SqlParser::select(const std::string &tablename,
 
     condition_t constraint_key;
 
-    std::function<bool(const Record &rec)> lamb = [](const Record & /*rec*/) {
-      return true;
-    };
+    std::function<bool(const DB_ENGINE::Record &rec)> lamb =
+        [](const DB_ENGINE::Record & /*rec*/) { return true; };
 
     // Iterating the AND contraints
     for (const auto &column_constraint : or_constraint) {
@@ -144,7 +145,7 @@ void SqlParser::select(const std::string &tablename,
             tablename, column_constraint.c, column_constraint.column_name,
             column_constraint.value);
 
-        lamb = [&lamb, &record_comp](const Record &rec) {
+        lamb = [&lamb, &record_comp](const DB_ENGINE::Record &rec) {
           return lamb(rec) && record_comp(rec);
         };
       } else {
@@ -162,8 +163,8 @@ void SqlParser::select(const std::string &tablename,
           column_names);
     } else {
 
-      Attribute begin_key = KEY_LIMITS::MIN;
-      Attribute end_key = KEY_LIMITS::MAX;
+      Attribute begin_key = DB_ENGINE::KEY_LIMITS::MIN;
+      Attribute end_key = DB_ENGINE::KEY_LIMITS::MAX;
 
       switch (constraint_key.c) {
       case Comp::L:
@@ -207,6 +208,7 @@ auto SqlParser::merge_vectors(const std::vector<std::string> &vec1,
   return result;
 }
 
-void SqlParser::insert_from_file(const std::string &tablename, const std::string &filename) {
+void SqlParser::insert_from_file(const std::string &tablename,
+                                 const std::string &filename) {
   std::cout << filename << std::endl;
 }
