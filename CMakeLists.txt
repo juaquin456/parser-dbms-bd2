@@ -60,7 +60,7 @@ target_compile_options(
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-error=unused-parameter>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize-address-use-after-scope>
-    $<$<CONFIG:RELEASE>:-Ofast>
+    $<$<CONFIG:RELEASE>:-O0>
     $<$<CONFIG:DEBUG>:-O0>
     $<$<CONFIG:DEBUG>:-ggdb3>)
 
