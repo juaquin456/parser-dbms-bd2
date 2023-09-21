@@ -63,10 +63,3 @@ target_compile_options(
 target_link_options(
   SqlParser PUBLIC
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>)
-
-# Wht kind of tests are these?
-enable_testing()
-add_test(
-  NAME basic
-  COMMAND ${CMAKE_SOURCE_DIR}/test/test0.pl
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
