@@ -113,5 +113,5 @@ pk "primary key"
 {floating}  {yylval->emplace<double>() = std::stod(yytext); return token::FLOATING;}
 {num}       {yylval->emplace<int>() = std::stoi(yytext); return token::NUM;}
 <<EOF>>     {yyterminate();}
-.           {scanner::LexerError("Unknown character");}
+.           {spdlog::info("Unknown character");}
 %%

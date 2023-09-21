@@ -79,7 +79,7 @@ void SqlParser::parse_helper(std::istream &stream) {
 void SqlParser::check_table_name(const std::string &tablename) {
   spdlog::info("Cheking Table : {}", tablename);
   if (!this->m_engine.is_table(tablename)) {
-    throw std::runtime_error("Table not exists");
+    spdlog::error("Table doesn't exists");
   }
 }
 
@@ -104,7 +104,7 @@ void SqlParser::create_table(const std::string &tablename,
   }
 
   if (!m_engine.create_table(tablename, primary_key, col_types, col_names)) {
-    throw std::runtime_error("Table already exists");
+    spdlog::error("Table already exists");
   }
 }
 
@@ -118,7 +118,7 @@ void SqlParser::select(const std::string &tablename,
         return std::ranges::find(table_attributes, col) ==
                table_attributes.end();
       })) {
-    throw std::runtime_error("Column doesn't exist");
+    spdlog::error("Column doesn't exists");
   }
 
   // Iterating OR constraints

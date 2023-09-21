@@ -136,5 +136,6 @@ CREATE_UNIT:        ID TYPE { $$ = column_t($1, $2, 0);}
 %%
 
 void yy::parser::error(const location_type &l, const std::string &message){
-    std::cerr << "Error: " << message << " at "<<l.end<< "\n";
+    std::cout << "Error: " << message << " at "<< l.end << "\n";
+    //spdlog::error("Error: {}", message, l.end)
 }
