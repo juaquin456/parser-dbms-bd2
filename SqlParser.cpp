@@ -216,3 +216,15 @@ void SqlParser::insert_from_file(const std::string &tablename,
 void SqlParser::insert(const std::string &tablename, const std::vector<std::string>& values) {
   //m_engine.add();
 }
+
+void SqlParser::remove(const std::string &tablename, std::list<std::list<condition_t>>& constraint) {
+  Attribute key;
+  condition_t& unique_condition = constraint.front().front();
+  key.name = unique_condition.column_name;
+  key.value = unique_condition.value;
+  m_engine.remove(tablename, key);
+}
+
+void SqlParser::drop_table(const std::string &tablename) {
+  m_engine.drop_table(tablename);
+}
