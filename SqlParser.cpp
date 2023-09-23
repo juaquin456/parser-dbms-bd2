@@ -194,6 +194,14 @@ void SqlParser::select(const std::string &tablename,
     query_response.records =
         merge_records(query_response.records, or_response.records);
   }
+
+  // Sencilal Crow
+  // m_parser_response.query_times = TO_JSON(query_response.query_times);
+  //
+  // m_parser_response.records = TO_JSON(query_response.query_times);
+
+  // Construir ParserResponse utilizando query_response, convertir a
+  // json(string)
 }
 
 auto SqlParser::merge_records(const std::vector<Record> &vec1,
@@ -226,7 +234,9 @@ auto SqlParser::merge_times(query_time_t &times_1, const query_time_t &times_2)
 
 void SqlParser::insert_from_file(const std::string &tablename,
                                  const std::string &filename) {
-  m_engine.csv_insert(tablename, filename);
+  auto file_name = filename.substr(1, filename.length() - 2);
+  spdlog::info("Parsed insert_from_file: {}, {}", tablename, file_name);
+  m_engine.csv_insert(tablename, file_name);
 }
 
 void SqlParser::insert(const std::string &tablename,
@@ -244,5 +254,5 @@ void SqlParser::remove(const std::string &tablename,
 }
 
 void SqlParser::drop_table(const std::string &tablename) {
-  DB_ENGINE::DBEngine::drop_table(tablename);
+  DB_ENGINE::DBEngine::clean_table(tablename);
 }
