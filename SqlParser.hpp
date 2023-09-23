@@ -32,6 +32,10 @@ public:
   void create_table(const std::string &tablename,
                     const std::vector<column_t> &columns);
 
+  void create_index(const std::string &tablename,
+                    const std::string &column_name,
+                    const DB_ENGINE::DBEngine::Index_t &index_name);
+
   void select(const std::string &tablename,
               const std::vector<std::string> &column_names,
               const std::list<std::list<condition_t>> &constraints);
