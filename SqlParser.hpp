@@ -8,8 +8,14 @@
 #include <unordered_set>
 #include <vector>
 
+#include "Record/Record.hpp"
 #include "parser.tab.hh"
 #include "scanner.hpp"
+
+struct ParserResponse {
+  std::string records;
+  std::string query_times;
+};
 
 class SqlParser {
 public:
@@ -19,7 +25,7 @@ public:
 
   void parse(const char *filename);
 
-  auto parse(std::istream &stream) -> std::vector<std::string> &;
+  auto parse(std::istream &stream) -> ParserResponse;
 
   void check_table_name(const std::string &tablename);
 
@@ -36,16 +42,19 @@ public:
 
 private:
   DB_ENGINE::DBEngine m_engine;
-  std::vector<std::string> m_response;
+  ParserResponse m_parser_response;
 
   void parse_helper(std::istream &stream);
   std::unordered_set<std::string> m_tablenames;
   yy::parser *m_parser = nullptr;
   scanner *m_sc = nullptr;
 
-  static auto merge_vectors(const std::vector<std::string> &vec1,
-                            const std::vector<std::string> &vec2)
-      -> std::vector<std::string>;
+  static auto merge_records(const std::vector<Record> &vec1,
+                            const std::vector<Record> &vec2)
+      -> std::vector<Record>;
+
+  static auto merge_times(query_time_t &times_1, const query_time_t &times_2)
+      -> query_time_t &;
 };
 
 #endif // SQL_PARSER_HPP

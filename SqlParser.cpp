@@ -6,6 +6,7 @@
 #include <ranges>
 #include <spdlog/spdlog.h>
 
+#include "Record/Record.hpp"
 #include "SqlParser.hpp"
 
 // #include "../../include/DBEngine/DBEngine.hpp"
@@ -44,12 +45,12 @@ void SqlParser::parse(const char *filename) {
   parse_helper(in_file);
 }
 
-auto SqlParser::parse(std::istream &stream) -> std::vector<std::string> & {
+auto SqlParser::parse(std::istream &stream) -> ParserResponse {
   if (!stream.good() && stream.eof()) {
-    return this->m_response;
+    return this->m_parser_response;
   }
   parse_helper(stream);
-  return this->m_response;
+  return this->m_parser_response;
 }
 
 void SqlParser::parse_helper(std::istream &stream) {
@@ -57,22 +58,21 @@ void SqlParser::parse_helper(std::istream &stream) {
   try {
     m_sc = new scanner(&stream);
   } catch (std::bad_alloc &ba) {
-    std::cerr << "Failed to allocate scanner: (" << ba.what()
-              << "), exiting!!\n";
-    exit(EXIT_FAILURE);
+    spdlog::error("Failed to allocate scanner: ({})", ba.what());
+    throw ba;
   }
   delete (m_parser);
   try {
     m_parser = new yy::parser((*m_sc), (*this));
   } catch (std::bad_alloc &ba) {
-    std::cerr << "Failed to allocate parser: (" << ba.what()
-              << "), exiting!!\n";
-    exit(EXIT_FAILURE);
+    spdlog::error("Failed to allocate parser: ({})", ba.what());
+    throw ba;
   }
 
   const int ACCEPT(0);
   if (m_parser->parse() != ACCEPT) {
-    std::cerr << "Parse failed!!\n";
+    spdlog::error("Parsing failed");
+    throw std::runtime_error("Parsing failed");
   }
 }
 
@@ -80,6 +80,7 @@ void SqlParser::check_table_name(const std::string &tablename) {
   spdlog::info("Cheking Table : {}", tablename);
   if (!this->m_engine.is_table(tablename)) {
     spdlog::error("Table doesn't exists");
+    throw std::runtime_error("Table doesn't exists");
   }
 }
 
@@ -105,6 +106,7 @@ void SqlParser::create_table(const std::string &tablename,
 
   if (!m_engine.create_table(tablename, primary_key, col_types, col_names)) {
     spdlog::error("Table already exists");
+    throw std::runtime_error("Table already exists");
   }
 }
 
@@ -113,12 +115,15 @@ void SqlParser::select(const std::string &tablename,
                        const std::list<std::list<condition_t>> &constraints) {
   auto table_attributes = this->m_engine.get_table_attributes(tablename);
 
+  QueryResponse query_response;
+
   // check if col exists
   if (std::ranges::any_of(column_names, [&](const auto &col) {
         return std::ranges::find(table_attributes, col) ==
                table_attributes.end();
       })) {
     spdlog::error("Column doesn't exists");
+    throw std::runtime_error("Column doesn't exists");
   }
 
   // Iterating OR constraints
@@ -156,11 +161,12 @@ void SqlParser::select(const std::string &tablename,
       }
     }
 
+    QueryResponse or_response;
     if (constraint_key.c == Comp::EQUAL) {
 
-      auto or_response = m_engine.search(
+      or_response = {m_engine.search(
           tablename, {constraint_key.column_name, constraint_key.value}, lamb,
-          column_names);
+          column_names)};
     } else {
 
       Attribute begin_key = DB_ENGINE::KEY_LIMITS::MIN;
@@ -179,33 +185,43 @@ void SqlParser::select(const std::string &tablename,
         break;
       }
 
-      auto or_response = m_engine.range_search(tablename, begin_key, end_key,
-                                               lamb, column_names);
-
-      m_response = merge_vectors(m_response, or_response);
+      or_response = m_engine.range_search(tablename, begin_key, end_key, lamb,
+                                          column_names);
     }
+    query_response.query_times =
+        merge_times(query_response.query_times, or_response.query_times);
+
+    query_response.records =
+        merge_records(query_response.records, or_response.records);
   }
 }
 
-auto SqlParser::merge_vectors(const std::vector<std::string> &vec1,
-                              const std::vector<std::string> &vec2)
-    -> std::vector<std::string> {
+auto SqlParser::merge_records(const std::vector<Record> &vec1,
+                              const std::vector<Record> &vec2)
+    -> std::vector<Record> {
 
-  std::vector<std::string> result;
-  result.reserve(vec1.size() + vec2.size());
+  std::vector<Record> response;
+  response.reserve(vec1.size() + vec2.size());
 
-  result.insert(result.end(), vec1.begin(), vec1.end());
+  response.insert(response.end(), vec1.begin(), vec1.end());
 
-  std::unordered_set<std::string> unique_elements(vec1.begin(), vec1.end());
+  std::unordered_set<Record, RecordHash> unique_elements(vec1.begin(),
+                                                         vec1.end());
 
   for (const auto &element : vec2) {
     if (unique_elements.find(element) == unique_elements.end()) {
-      result.push_back(element);
+      response.push_back(element);
       unique_elements.insert(element);
     }
   }
 
-  return result;
+  return response;
+}
+
+auto SqlParser::merge_times(query_time_t &times_1, const query_time_t &times_2)
+    -> query_time_t & {
+  times_1.insert(times_2.begin(), times_2.end());
+  return times_1;
 }
 
 void SqlParser::insert_from_file(const std::string &tablename,
