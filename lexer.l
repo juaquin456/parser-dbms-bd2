@@ -37,6 +37,7 @@ update (?i:update)
 delete (?i:delete)
 select (?i:select)
 create (?i:create)
+drop   (?i:drop)
 
 /* Objects */
 table (?i:table)
@@ -72,6 +73,7 @@ pk "primary key"
     yylval = lval;
 %}
 {spaces}    {;}
+"*"         {return token::ALL;}
 {endline}   {return token::ENDL;}
 "("         {return token::PI;}
 ")"         {return token::PD;}
@@ -82,6 +84,7 @@ pk "primary key"
 {delete}    {return token::DELETE;}
 {select}    {return token::SELECT;}
 {create}    {return token::CREATE;}
+{drop}      {return token::DROP;}
 
 {from}      {return token::FROM;}
 {into}      {return token::INTO;}

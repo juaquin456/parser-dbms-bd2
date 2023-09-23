@@ -66,7 +66,7 @@
 %define api.value.type variant
 %define parse.assert
 
-%token ENDL SEP INSERT UPDATE DELETE SELECT CREATE FROM INTO SET VALUES WHERE AND OR EQUAL TABLE INDEX COLUMN PI PD PK
+%token ENDL SEP INSERT UPDATE DELETE SELECT CREATE FROM INTO SET VALUES WHERE AND OR EQUAL TABLE INDEX COLUMN PI PD PK ALL DROP
 %token INT DOUBLE CHAR BOOL
 %token GE G LE L
 %token <std::string> ID
@@ -81,6 +81,7 @@
 %type <std::vector<column_t>> CREATE_LIST
 %type <column_t> CREATE_UNIT
 %type <Type> TYPE
+%type <std::vector<std::string>> PARAMS
 
 %type <std::string> INPLACE_VALUE
 %type <condition_t> CONDITION
@@ -94,21 +95,23 @@
 PROGRAM:            /*  */
                     | SENTENCE ENDL PROGRAM;
 
-SENTENCE:           INSERT_TYPE | DELETE_TYPE | UPDATE_TYPE | CREATE_TYPE | SELECT_TYPE;
+SENTENCE:           INSERT_TYPE | DELETE_TYPE | UPDATE_TYPE | CREATE_TYPE | SELECT_TYPE | DROP_TYPE;
 
 INPLACE_VALUE:      STRING      {$$ = $1;} 
                     | NUM       {$$ = std::to_string($1);} 
                     | FLOATING  {$$ = std::to_string($1);};
 VALUE:              ID | INPLACE_VALUE;
-PARAMS:             INPLACE_VALUE SEP PARAMS | INPLACE_VALUE;
+PARAMS:             INPLACE_VALUE SEP PARAMS {$3.push_back($1); $$ = std::move($3);} | INPLACE_VALUE {$$.push_back($1);};
 RANGE_OPERATOR:     GE {$$ = GE;}| G {$$ = G;}| LE {$$ = LE;}| L {$$ = L;};
 /* SENTECES TYPE */
 
-INSERT_TYPE:        INSERT INTO ID VALUES PI PARAMS PD | INSERT INTO ID {dr.check_table_name($3);} FROM STRING {dr.insert_from_file($3, $6);};
-DELETE_TYPE:        DELETE FROM ID CONDITIONALS;
+INSERT_TYPE:        INSERT INTO ID {dr.check_table_name($3);} VALUES PI PARAMS PD {dr.insert($3, $7);} | INSERT INTO ID {dr.check_table_name($3);} FROM STRING {dr.insert_from_file($3, $6);};
+DELETE_TYPE:        DELETE FROM ID {dr.check_table_name($3);} CONDITIONALS {dr.remove($3, $5);};
 UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS;
+DROP_TYPE  :        DROP TABLE ID {dr.check_table_name($3); dr.drop_table($3);}
 CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.create_table($3, $5);}
-SELECT_TYPE:        SELECT COLUMNS FROM ID {dr.check_table_name($4);} CONDITIONALS {dr.select($4, $2, $6);};
+SELECT_TYPE:        SELECT COLUMNS FROM ID {dr.check_table_name($4);} CONDITIONALS {dr.select($4, $2, $6);} 
+                    | SELECT ALL FROM ID {dr.check_table_name($4);} CONDITIONALS {dr.select($4, dr.get_engine().get_table_attributes($4), $6);};
 
 /* TYPES */
 TYPE:               INT {$$ = Type(Type::INT);}| DOUBLE {$$ = Type(Type::FLOAT);} | CHAR {$$ = Type(Type::VARCHAR, 1);} | CHAR PI NUM PD {$$ = Type(Type::VARCHAR, $3);}| BOOL {$$ = Type(Type::BOOL);}

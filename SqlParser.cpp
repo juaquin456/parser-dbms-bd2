@@ -226,5 +226,21 @@ auto SqlParser::merge_times(query_time_t &times_1, const query_time_t &times_2)
 
 void SqlParser::insert_from_file(const std::string &tablename,
                                  const std::string &filename) {
-  std::cout << filename << std::endl;
+  m_engine.csv_insert(tablename, filename);
+}
+
+void SqlParser::insert(const std::string &tablename, const std::vector<std::string>& values) {
+  //m_engine.add();
+}
+
+void SqlParser::remove(const std::string &tablename, std::list<std::list<condition_t>>& constraint) {
+  Attribute key;
+  condition_t& unique_condition = constraint.front().front();
+  key.name = unique_condition.column_name;
+  key.value = unique_condition.value;
+  m_engine.remove(tablename, key);
+}
+
+void SqlParser::drop_table(const std::string &tablename) {
+  m_engine.drop_table(tablename);
 }
