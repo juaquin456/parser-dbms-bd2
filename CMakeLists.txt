@@ -29,36 +29,20 @@ target_include_directories(
   PRIVATE ${CMAKE_SOURCE_DIR}/include/DBengine
   PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-target_compile_options(
-  SqlParser
-  PUBLIC
-    # Prefered warnings
-    $<$<CXX_COMPILER_ID:MSVC>:/W4
-    /WX>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>: #[[ -Werror ]]
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Wformat=2
-    -Wshadow
-    -Wwrite-strings
-    -Wcast-qual
-    -Wcast-align
-    -Wconversion> # Disable some warnings #
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++20-compat>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-zero-as-null-pointer-constant> # Solves a
-                                                                         # bug,
-                                                                         # forgot
-                                                                         # which one
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-but-set-variable>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-switch-enum>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-padded>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-error=unused-parameter>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize-address-use-after-scope>
-    $<$<CONFIG:RELEASE>:-O0>
-    $<$<CONFIG:DEBUG>:-O0>
-    $<$<CONFIG:DEBUG>:-ggdb3>)
+# target_compile_options( SqlParser PUBLIC # Prefered warnings
+# $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>: #[[
+# -Werror ]] -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wwrite-strings
+# -Wcast-qual -Wcast-align -Wconversion> # Disable some warnings #
+# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++20-compat>
+# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-zero-as-null-pointer-constant> # Solves
+# a # bug, # forgot # which one
+# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-but-set-variable>
+# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-switch-enum>
+# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-padded>
+# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-error=unused-parameter>
+# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>
+# $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize-address-use-after-scope>
+# $<$<CONFIG:RELEASE>:-O0> $<$<CONFIG:DEBUG>:-O0> $<$<CONFIG:DEBUG>:-ggdb3>)
 
 target_link_options(
   SqlParser PUBLIC
