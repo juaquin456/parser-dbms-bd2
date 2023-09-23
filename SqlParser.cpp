@@ -244,5 +244,5 @@ void SqlParser::remove(const std::string &tablename,
 }
 
 void SqlParser::drop_table(const std::string &tablename) {
-  DB_ENGINE::DBEngine::drop_table(tablename);
+  m_engine.drop_table(tablename);
 }
