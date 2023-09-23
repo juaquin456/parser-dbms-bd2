@@ -81,6 +81,7 @@
 %type <std::vector<column_t>> CREATE_LIST
 %type <column_t> CREATE_UNIT
 %type <Type> TYPE
+%type <std::vector<std::string>> PARAMS
 
 %type <std::string> INPLACE_VALUE
 %type <condition_t> CONDITION
@@ -100,11 +101,11 @@ INPLACE_VALUE:      STRING      {$$ = $1;}
                     | NUM       {$$ = std::to_string($1);} 
                     | FLOATING  {$$ = std::to_string($1);};
 VALUE:              ID | INPLACE_VALUE;
-PARAMS:             INPLACE_VALUE SEP PARAMS | INPLACE_VALUE;
+PARAMS:             INPLACE_VALUE SEP PARAMS {$3.push_back($1); $$ = std::move($3);} | INPLACE_VALUE {$$.push_back($1);};
 RANGE_OPERATOR:     GE {$$ = GE;}| G {$$ = G;}| LE {$$ = LE;}| L {$$ = L;};
 /* SENTECES TYPE */
 
-INSERT_TYPE:        INSERT INTO ID VALUES PI PARAMS PD | INSERT INTO ID {dr.check_table_name($3);} FROM STRING {dr.insert_from_file($3, $6);};
+INSERT_TYPE:        INSERT INTO ID {dr.check_table_name($3);} VALUES PI PARAMS PD {dr.insert($3, $7);} | INSERT INTO ID {dr.check_table_name($3);} FROM STRING {dr.insert_from_file($3, $6);};
 DELETE_TYPE:        DELETE FROM ID CONDITIONALS;
 UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS;
 CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.create_table($3, $5);}

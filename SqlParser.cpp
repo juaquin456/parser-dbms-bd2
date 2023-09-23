@@ -210,5 +210,9 @@ auto SqlParser::merge_vectors(const std::vector<std::string> &vec1,
 
 void SqlParser::insert_from_file(const std::string &tablename,
                                  const std::string &filename) {
-  std::cout << filename << std::endl;
+  m_engine.csv_insert(tablename, filename);
+}
+
+void SqlParser::insert(const std::string &tablename, const std::vector<std::string>& values) {
+  //m_engine.add();
 }
