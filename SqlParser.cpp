@@ -377,3 +377,76 @@ void SqlParser::remove(const std::string &tablename,
 void SqlParser::drop_table(const std::string &tablename) {
   m_engine.drop_table(tablename);
 }
+
+void SqlParser::select_between(const std::string &tablename,
+              const std::vector<std::string> &column_names,
+              const std::string &id, const std::string &val1, const std::string &val2) {
+  auto sorted_column_names = column_names;
+  m_engine.sort_attributes(tablename, sorted_column_names);
+
+  auto table_attributes = this->m_engine.get_table_attributes(tablename);
+
+  QueryResponse query_response;
+
+  // check if col exists
+  if (std::ranges::any_of(sorted_column_names, [&](const auto &col) {
+        return std::ranges::find(table_attributes, col) ==
+               table_attributes.end();
+      })) {
+    spdlog::error("Column doesn't exists");
+    throw std::runtime_error("Column doesn't exists");
+  }
+
+  Attribute begin_key = {id, val1};
+  Attribute end_key   = {id, val2};
+
+  query_response = m_engine.range_search(tablename, begin_key, end_key, {},
+                                      sorted_column_names);
+
+  rapidjson::Document doc;
+  doc.SetObject();
+  auto &alloc = doc.GetAllocator();
+  for(const auto& [key, value]: query_response.query_times) {
+    doc.AddMember(rapidjson::Value().SetString(key.c_str(),
+                                              key.size(), alloc),
+                  rapidjson::Value().SetDouble(value.count()), alloc);
+    
+    rapidjson::StringBuffer buffer;
+    buffer.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    doc.Accept(writer);
+
+    m_parser_response.query_times = buffer.GetString();
+    spdlog::error("result1 "+m_parser_response.query_times);
+  }
+
+  if (query_response.records.empty()) {
+    return;
+  }
+  rapidjson::Document doc_recs;
+  auto &alloc2 = doc_recs.GetAllocator();
+  doc_recs.SetArray();
+  for (const auto &rec : query_response.records) {
+    rapidjson::Document tmp;
+    tmp.SetObject();
+    auto &alloc_tmp = tmp.GetAllocator();
+    for (int i = 0; i < rec.m_fields.size(); i++) {
+      tmp.AddMember(rapidjson::Value().SetString(sorted_column_names.at(i).c_str(), sorted_column_names.at(i).length(), alloc_tmp).Move(),
+                    rapidjson::Value().SetString(rec.m_fields.at(i).c_str(), rec.m_fields.at(i).size(), 
+                                                 alloc_tmp).Move(),
+                    alloc_tmp);
+    }
+    rapidjson::StringBuffer buffer1;
+    buffer1.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer1);
+    tmp.Accept(writer);
+    doc_recs.PushBack(tmp, alloc2);
+    spdlog::error(buffer1.GetString());
+  }
+  rapidjson::StringBuffer buffer1;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer1);
+  spdlog::error("CREATED JSON");
+  doc_recs.Accept(writer);
+  m_parser_response.records = buffer1.GetString();
+
+}

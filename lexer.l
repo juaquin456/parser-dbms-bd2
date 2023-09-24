@@ -51,6 +51,7 @@ isam (?i:isam)
 where (?i:where)
 and (?i:and)
 or (?i:or)
+between (?i:between)
 equal "="
 l  "<"
 g  ">"
@@ -99,6 +100,7 @@ on (?i:on)
 {and}       {return token::AND;}
 {or}        {return token::OR;}
 {equal}     {return token::EQUAL;}
+{between}   {return token::BETWEEN;}
 {ge}        {return token::GE;}
 {g}         {return token::G;}
 {le}        {return token::LE;}
