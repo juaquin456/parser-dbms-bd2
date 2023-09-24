@@ -11,6 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 # Bison needs to generate headers before linkeage can ocurr
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
+find_package(RapidJSON REQUIRED)
 
 bison_target(parser parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.tab.cc)
 # DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/parser.tab.hh)

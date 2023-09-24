@@ -8,7 +8,10 @@
 
 #include "Record/Record.hpp"
 #include "SqlParser.hpp"
+#include "rapidjson/document.h"
+#include "rapidjson/stringbuffer.h"
 
+#include "rapidjson/writer.h"
 // #include "../../include/DBEngine/DBEngine.hpp"
 
 // const std::string METADATA_PATH = "./meta.data";
@@ -110,6 +113,14 @@ void SqlParser::create_table(const std::string &tablename,
   }
 }
 
+const auto& to_string(rapidjson::Document& doc) {
+  rapidjson::StringBuffer buffer;
+  buffer.Clear();
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  doc.Accept(writer);
+  return buffer.GetString();
+}
+
 void SqlParser::select(const std::string &tablename,
                        const std::vector<std::string> &column_names,
                        const std::list<std::list<condition_t>> &constraints) {
@@ -194,14 +205,27 @@ void SqlParser::select(const std::string &tablename,
     query_response.records =
         merge_records(query_response.records, or_response.records);
   }
-
+  
+  rapidjson::Document doc;
+  const auto& time  = query_response.query_times.begin();
+  auto& alloc = doc.GetAllocator();
+  doc.AddMember(rapidjson::StringRef(time->first.c_str()), rapidjson::Value().SetDouble((time->second.count())), alloc);
   // Sencilal Crow
-  // m_parser_response.query_times = TO_JSON(query_response.query_times);
-  //
-  // m_parser_response.records = TO_JSON(query_response.query_times);
+  m_parser_response.query_times = to_string(doc);
 
-  // Construir ParserResponse utilizando query_response, convertir a
-  // json(string)
+  rapidjson::Document doc_recs;
+  auto& alloc2 = doc_recs.GetAllocator();
+  doc_recs.SetArray();
+  for (const auto& rec: query_response.records) {
+    rapidjson::Document tmp;
+    auto& alloc_tmp = tmp.GetAllocator();
+    for (int i = 0; i < rec.m_fields.size(); i++) {
+      tmp.AddMember(rapidjson::StringRef(column_names.at(i).c_str()), rapidjson::Value().SetString(rec.m_fields.at(i).data(), rec.m_fields.at(i).size(), alloc_tmp), alloc_tmp);
+    }
+    doc_recs.PushBack(tmp, alloc2);
+  }
+
+  m_parser_response.records = to_string(doc_recs);
 }
 
 auto SqlParser::merge_records(const std::vector<Record> &vec1,
