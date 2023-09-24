@@ -281,10 +281,10 @@ void SqlParser::select(const std::string &tablename,
 
   //m_parser_response.query_times = to_string(query_response.query_times);
 
-    spdlog::error(rec.m_fields.size());
   rapidjson::Document doc_recs;
   auto &alloc2 = doc_recs.GetAllocator();
   doc_recs.SetArray();
+    spdlog::error(query_response.records.size());
   for (auto &rec : query_response.records) {
     rapidjson::Document tmp;
     tmp.SetObject();
