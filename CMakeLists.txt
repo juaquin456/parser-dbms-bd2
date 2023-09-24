@@ -48,15 +48,3 @@ target_include_directories(
 target_link_options(
   SqlParser PUBLIC
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fsanitize=address,undefined>)
-
-# Api package
-find_package(Crow QUIET)
-
-if(Crow_FOUND)
-  message(STATUS "Found Crow")
-  target_link_libraries(SqlParser PUBLIC Crow::Crow)
-else()
-  message(STATUS "Crow not found, using bundled version")
-  target_include_directories(SqlParser SYSTEM
-                             PUBLIC ${CMAKE_SOURCE_DIR}/libs/Crow)
-endif()
