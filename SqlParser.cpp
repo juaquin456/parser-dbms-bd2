@@ -215,6 +215,8 @@ void SqlParser::select(const std::string &tablename,
       // si lo tiene, asignar al constraint_key
       // si no, construir un predicado con los operadores;
 
+      spdlog::error("Column constraint: {}", column_constraint.column_name);
+
       auto indexes = this->m_engine.get_indexes_names(tablename);
 
       // If the column doesnt has an index
@@ -238,7 +240,7 @@ void SqlParser::select(const std::string &tablename,
 
     QueryResponse or_response;
     if (constraint_key.c == Comp::EQUAL) {
-
+      
       or_response = {m_engine.search(
           tablename, {constraint_key.column_name, constraint_key.value}, lamb,
           sorted_column_names)};
@@ -284,7 +286,7 @@ void SqlParser::select(const std::string &tablename,
     doc.Accept(writer);
 
     m_parser_response.query_times = buffer.GetString();
-    //spdlog::error("result1 "+m_parser_response.query_times);
+    spdlog::error("result1 "+m_parser_response.query_times);
   }
   
   /* doc.AddMember(rapidjson::StringRef(time->first.c_str()),
@@ -300,24 +302,28 @@ void SqlParser::select(const std::string &tablename,
   auto &alloc2 = doc_recs.GetAllocator();
   doc_recs.SetArray();
   for (const auto &rec : query_response.records) {
-    //spdlog::error(query_response.records.size());
     rapidjson::Document tmp;
     tmp.SetObject();
     auto &alloc_tmp = tmp.GetAllocator();
     for (int i = 0; i < rec.m_fields.size(); i++) {
-      tmp.AddMember(rapidjson::Value().SetString(sorted_column_names.at(i).c_str(), sorted_column_names.at(i).length(), alloc_tmp),
-                    rapidjson::Value().SetString(std::string(rec.m_fields.at(i).begin(), rec.m_fields.at(i).end()).data(),
-                                                 rec.m_fields.at(i).size(),
-                                                 alloc_tmp),
+      tmp.AddMember(rapidjson::Value().SetString(sorted_column_names.at(i).c_str(), sorted_column_names.at(i).length(), alloc_tmp).Move(),
+                    rapidjson::Value().SetString(rec.m_fields.at(i).c_str(), rec.m_fields.at(i).size(), 
+                                                 alloc_tmp).Move(),
                     alloc_tmp);
     }
+    rapidjson::StringBuffer buffer1;
+    buffer1.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer1);
+    tmp.Accept(writer);
     doc_recs.PushBack(tmp, alloc2);
+    spdlog::error(buffer1.GetString());
   }
-  rapidjson::StringBuffer buffer;
-  buffer.Clear();
-  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  rapidjson::StringBuffer buffer1;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer1);
+  spdlog::error("CREATED JSON");
   doc_recs.Accept(writer);
-  m_parser_response.records = buffer.GetString();
+  m_parser_response.records = buffer1.GetString();
+
 }
 
 auto SqlParser::merge_records(const std::vector<Record> &vec1,
