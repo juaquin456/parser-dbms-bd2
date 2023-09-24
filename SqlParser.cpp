@@ -34,6 +34,31 @@
 //   metadata.close();
 // }
 //
+
+static auto to_string(const query_time_t &times) -> std::string {
+  std::string str;
+
+  for (const auto &[key, val] : times) {
+    str += "'" + key + "'" + ":" + std::to_string(val.count()) + ",";
+  }
+  return str;
+}
+static auto to_string(const std::vector<Record> &records) -> std::string {
+  std::string str;
+
+  for (const auto &record : records) {
+
+    str += "{";
+
+    for (const auto &word : record) {
+      str += std::string(word.begin(), word.end());
+    }
+
+    str += "}";
+  }
+  return str;
+}
+
 SqlParser::~SqlParser() {
   delete m_sc;
   delete m_parser;
@@ -113,21 +138,21 @@ void SqlParser::create_table(const std::string &tablename,
   }
 }
 
-const auto& to_string(rapidjson::Document& doc) {
+const auto to_string(rapidjson::Document &doc) {
   rapidjson::StringBuffer buffer;
   buffer.Clear();
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   doc.Accept(writer);
   return buffer.GetString();
 }
+
 void SqlParser::create_index(const std::string &tablename,
                              const std::string &column_name,
                              const DB_ENGINE::DBEngine::Index_t &index_name) {
 
-
-  for (auto& attribute : m_engine.get_table_attributes(tablename)) {
+  for (auto &attribute : m_engine.get_table_attributes(tablename)) {
     if (attribute == column_name) {
-      
+
       /* if (!m_engine.create_index(tablename, column_name, index_name)) {
         spdlog::error("Index already exists");
         throw std::runtime_error("Index already exists");
@@ -136,17 +161,21 @@ void SqlParser::create_index(const std::string &tablename,
     }
   }
   spdlog::error("Column doesn't exists");
-} 
+}
 
 void SqlParser::select(const std::string &tablename,
                        const std::vector<std::string> &column_names,
                        const std::list<std::list<condition_t>> &constraints) {
+
+  auto sorted_column_names = column_names;
+  m_engine.sort_attributes(tablename, sorted_column_names);
+
   auto table_attributes = this->m_engine.get_table_attributes(tablename);
 
   QueryResponse query_response;
 
   // check if col exists
-  if (std::ranges::any_of(column_names, [&](const auto &col) {
+  if (std::ranges::any_of(sorted_column_names, [&](const auto &col) {
         return std::ranges::find(table_attributes, col) ==
                table_attributes.end();
       })) {
@@ -194,7 +223,7 @@ void SqlParser::select(const std::string &tablename,
 
       or_response = {m_engine.search(
           tablename, {constraint_key.column_name, constraint_key.value}, lamb,
-          column_names)};
+          sorted_column_names)};
     } else {
 
       Attribute begin_key = DB_ENGINE::KEY_LIMITS::MIN;
@@ -214,7 +243,7 @@ void SqlParser::select(const std::string &tablename,
       }
 
       or_response = m_engine.range_search(tablename, begin_key, end_key, lamb,
-                                          column_names);
+                                          sorted_column_names);
     }
     query_response.query_times =
         merge_times(query_response.query_times, or_response.query_times);
@@ -222,27 +251,38 @@ void SqlParser::select(const std::string &tablename,
     query_response.records =
         merge_records(query_response.records, or_response.records);
   }
-  
-  rapidjson::Document doc;
-  const auto& time  = query_response.query_times.begin();
-  auto& alloc = doc.GetAllocator();
-  doc.AddMember(rapidjson::StringRef(time->first.c_str()), rapidjson::Value().SetDouble((time->second.count())), alloc);
+
+  // rapidjson::Document doc;
+  // const auto &time = query_response.query_times.begin();
+  // auto &alloc = doc.GetAllocator();
+  //
+  // doc.AddMember(rapidjson::Value().SetString(time->first.c_str(),
+  //                                            time->first.size(), alloc),
+  //               rapidjson::Value().SetDouble((time->second.count())), alloc);
+
+  // doc.AddMember(rapidjson::StringRef(time->first.c_str()),
+  //               rapidjson::Value().SetDouble((time->second.count())), alloc);
   // Sencilal Crow
-  m_parser_response.query_times = to_string(doc);
+  // m_parser_response.query_times = to_string(doc);
+  m_parser_response.query_times = to_string(query_response.query_times);
 
-  rapidjson::Document doc_recs;
-  auto& alloc2 = doc_recs.GetAllocator();
-  doc_recs.SetArray();
-  for (const auto& rec: query_response.records) {
-    rapidjson::Document tmp;
-    auto& alloc_tmp = tmp.GetAllocator();
-    for (int i = 0; i < rec.m_fields.size(); i++) {
-      tmp.AddMember(rapidjson::StringRef(column_names.at(i).c_str()), rapidjson::Value().SetString(rec.m_fields.at(i).data(), rec.m_fields.at(i).size(), alloc_tmp), alloc_tmp);
-    }
-    doc_recs.PushBack(tmp, alloc2);
-  }
+  // rapidjson::Document doc_recs;
+  // auto &alloc2 = doc_recs.GetAllocator();
+  // doc_recs.SetArray();
+  // for (const auto &rec : query_response.records) {
+  //   rapidjson::Document tmp;
+  //   auto &alloc_tmp = tmp.GetAllocator();
+  //   for (int i = 0; i < rec.m_fields.size(); i++) {
+  //     tmp.AddMember(rapidjson::StringRef(sorted_column_names.at(i).c_str()),
+  //                   rapidjson::Value().SetString(rec.m_fields.at(i).data(),
+  //                                                rec.m_fields.at(i).size(),
+  //                                                alloc_tmp),
+  //                   alloc_tmp);
+  //   }
+  //   doc_recs.PushBack(tmp, alloc2);
+  // }
 
-  m_parser_response.records = to_string(doc_recs);
+  m_parser_response.records = to_string(query_response.records);
 }
 
 auto SqlParser::merge_records(const std::vector<Record> &vec1,
@@ -276,7 +316,6 @@ auto SqlParser::merge_times(query_time_t &times_1, const query_time_t &times_2)
 void SqlParser::insert_from_file(const std::string &tablename,
                                  const std::string &filename) {
   auto file_name = filename.substr(1, filename.length() - 2);
-  spdlog::info("Parsed insert_from_file: {}, {}", tablename, file_name);
   m_engine.csv_insert(tablename, file_name);
 }
 
