@@ -46,16 +46,20 @@ static auto to_string(const query_time_t &times) -> std::string {
 static auto to_string(const std::vector<Record> &records) -> std::string {
   std::string str;
 
+  spdlog::info("Records size: {}", records.size());
   for (const auto &record : records) {
 
-    str += "{";
+    str += "{ ";
 
     for (const auto &word : record) {
-      str += std::string(word.begin(), word.end());
+      str += std::string(word.begin(), word.end()) + ' ';
     }
 
-    str += "}";
+    str += " }\n";
   }
+
+  spdlog::info("{}", str);
+
   return str;
 }
 
@@ -183,6 +187,17 @@ void SqlParser::select(const std::string &tablename,
     throw std::runtime_error("Column doesn't exists");
   }
 
+  if (constraints.empty()) {
+
+    query_response = m_engine.load(tablename, column_names);
+
+    spdlog::info("Query response size: {}", query_response.records.size());
+
+    m_parser_response.query_times = to_string(query_response.query_times);
+    m_parser_response.records = to_string(query_response.records);
+    return;
+  }
+
   // Iterating OR constraints
   for (const auto &or_constraint : constraints) {
 
@@ -264,6 +279,7 @@ void SqlParser::select(const std::string &tablename,
   //               rapidjson::Value().SetDouble((time->second.count())), alloc);
   // Sencilal Crow
   // m_parser_response.query_times = to_string(doc);
+
   m_parser_response.query_times = to_string(query_response.query_times);
 
   // rapidjson::Document doc_recs;
