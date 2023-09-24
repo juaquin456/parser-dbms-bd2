@@ -46,16 +46,20 @@ static auto to_string(const query_time_t &times) -> std::string {
 static auto to_string(const std::vector<Record> &records) -> std::string {
   std::string str;
 
+  spdlog::info("Records size: {}", records.size());
   for (const auto &record : records) {
 
-    str += "{";
+    str += "{ ";
 
     for (const auto &word : record) {
-      str += std::string(word.begin(), word.end());
+      str += std::string(word.begin(), word.end()) + ' ';
     }
 
-    str += "}";
+    str += " }\n";
   }
+
+  spdlog::info("{}", str);
+
   return str;
 }
 
@@ -184,7 +188,10 @@ void SqlParser::select(const std::string &tablename,
   }
 
   if (constraints.empty()) {
+
     query_response = m_engine.load(tablename, column_names);
+
+    spdlog::info("Query response size: {}", query_response.records.size());
   }
 
   // Iterating OR constraints
@@ -274,13 +281,13 @@ void SqlParser::select(const std::string &tablename,
 
   //m_parser_response.query_times = to_string(query_response.query_times);
 
+    spdlog::error(rec.m_fields.size());
   rapidjson::Document doc_recs;
   auto &alloc2 = doc_recs.GetAllocator();
   doc_recs.SetArray();
   for (auto &rec : query_response.records) {
     rapidjson::Document tmp;
     tmp.SetObject();
-    spdlog::error(rec.m_fields.size());
     for (int i = 0; i < rec.m_fields.size(); i++) {
       tmp.AddMember(rapidjson::Value().SetString(sorted_column_names.at(i).c_str(), sorted_column_names.at(i).size(),alloc2),
                     rapidjson::Value().SetString(rec.m_fields.at(i).data(),
