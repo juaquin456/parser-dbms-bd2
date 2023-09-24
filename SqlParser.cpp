@@ -195,10 +195,10 @@ void SqlParser::select(const std::string &tablename,
     query_response = m_engine.load(tablename, column_names);
 
     spdlog::info("Query response size: {}", query_response.records.size());
-/* 
-    m_parser_response.query_times = to_string(query_response.query_times);
-    m_parser_response.records = to_string(query_response.records);
-    return; */
+    /*
+        m_parser_response.query_times = to_string(query_response.query_times);
+        m_parser_response.records = to_string(query_response.records);
+        return; */
   }
 
   // Iterating OR constraints
@@ -240,7 +240,7 @@ void SqlParser::select(const std::string &tablename,
 
     QueryResponse or_response;
     if (constraint_key.c == Comp::EQUAL) {
-      
+
       or_response = {m_engine.search(
           tablename, {constraint_key.column_name, constraint_key.value}, lamb,
           sorted_column_names)};
@@ -275,26 +275,25 @@ void SqlParser::select(const std::string &tablename,
   rapidjson::Document doc;
   doc.SetObject();
   auto &alloc = doc.GetAllocator();
-  for(const auto& [key, value]: query_response.query_times) {
-    doc.AddMember(rapidjson::Value().SetString(key.c_str(),
-                                              key.size(), alloc),
+  for (const auto &[key, value] : query_response.query_times) {
+    doc.AddMember(rapidjson::Value().SetString(key.c_str(), key.size(), alloc),
                   rapidjson::Value().SetDouble(value.count()), alloc);
-    
+
     rapidjson::StringBuffer buffer;
     buffer.Clear();
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     doc.Accept(writer);
 
     m_parser_response.query_times = buffer.GetString();
-    spdlog::error("result1 "+m_parser_response.query_times);
+    spdlog::error("result1 " + m_parser_response.query_times);
   }
-  
+
   /* doc.AddMember(rapidjson::StringRef(time->first.c_str()),
                 rapidjson::Value().SetDouble((time->second.count())), alloc);
    */
-  //Sencilal Crow
+  // Sencilal Crow
 
-  //m_parser_response.query_times = to_string(query_response.query_times);
+  // m_parser_response.query_times = to_string(query_response.query_times);
   if (query_response.records.empty()) {
     return;
   }
@@ -306,9 +305,15 @@ void SqlParser::select(const std::string &tablename,
     tmp.SetObject();
     auto &alloc_tmp = tmp.GetAllocator();
     for (int i = 0; i < rec.m_fields.size(); i++) {
-      tmp.AddMember(rapidjson::Value().SetString(sorted_column_names.at(i).c_str(), sorted_column_names.at(i).length(), alloc_tmp).Move(),
-                    rapidjson::Value().SetString(rec.m_fields.at(i).c_str(), rec.m_fields.at(i).size(), 
-                                                 alloc_tmp).Move(),
+      tmp.AddMember(rapidjson::Value()
+                        .SetString(sorted_column_names.at(i).c_str(),
+                                   sorted_column_names.at(i).length(),
+                                   alloc_tmp)
+                        .Move(),
+                    rapidjson::Value()
+                        .SetString(rec.m_fields.at(i).c_str(),
+                                   rec.m_fields.at(i).size(), alloc_tmp)
+                        .Move(),
                     alloc_tmp);
     }
     rapidjson::StringBuffer buffer1;
@@ -323,7 +328,6 @@ void SqlParser::select(const std::string &tablename,
   spdlog::error("CREATED JSON");
   doc_recs.Accept(writer);
   m_parser_response.records = buffer1.GetString();
-
 }
 
 auto SqlParser::merge_records(const std::vector<Record> &vec1,
@@ -362,7 +366,8 @@ void SqlParser::insert_from_file(const std::string &tablename,
 
 void SqlParser::insert(const std::string &tablename,
                        const std::vector<std::string> &values) {
-  m_engine.add(tablename, values);
+
+  m_engine.add(tablename, {values.rbegin(), values.rend()});
 }
 
 void SqlParser::remove(const std::string &tablename,
