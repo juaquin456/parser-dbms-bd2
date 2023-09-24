@@ -120,6 +120,23 @@ const auto& to_string(rapidjson::Document& doc) {
   doc.Accept(writer);
   return buffer.GetString();
 }
+void SqlParser::create_index(const std::string &tablename,
+                             const std::string &column_name,
+                             const DB_ENGINE::DBEngine::Index_t &index_name) {
+
+
+  for (auto& attribute : m_engine.get_table_attributes(tablename)) {
+    if (attribute == column_name) {
+      
+      /* if (!m_engine.create_index(tablename, column_name, index_name)) {
+        spdlog::error("Index already exists");
+        throw std::runtime_error("Index already exists");
+      } */
+      return;
+    }
+  }
+  spdlog::error("Column doesn't exists");
+} 
 
 void SqlParser::select(const std::string &tablename,
                        const std::vector<std::string> &column_names,

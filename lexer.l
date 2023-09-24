@@ -43,6 +43,9 @@ drop   (?i:drop)
 table (?i:table)
 index (?i:index)
 column (?i:column)
+seq (?i:seq)
+avl (?i:avl)
+isam (?i:isam)
 
 /* Conditional */
 where (?i:where)
@@ -67,6 +70,7 @@ char (?i:char)
 bool (?i:bool)
 
 pk "primary key"
+on (?i:on)
 
 %%
 %{
@@ -103,6 +107,9 @@ pk "primary key"
 {table}     {return token::TABLE;}
 {index}     {return token::INDEX;}
 {column}    {return token::ID;}
+{seq}       {return token::SEQ;}
+{avl}       {return token::AVL;}
+{isam}      {return token::ISAM;}
 
 {int}       {return token::INT;}
 {double}    {return token::DOUBLE;}
@@ -110,6 +117,7 @@ pk "primary key"
 {bool}      {return token::BOOL;}
 
 {pk}        {return token::PK;}
+{on}        {return token::ON;}
 
 {id}        {yylval->emplace<std::string>() = yytext; return token::ID;}
 {string}    {yylval->emplace<std::string>() = yytext; return token::STRING;}

@@ -66,7 +66,7 @@
 %define api.value.type variant
 %define parse.assert
 
-%token ENDL SEP INSERT UPDATE DELETE SELECT CREATE FROM INTO SET VALUES WHERE AND OR EQUAL TABLE INDEX COLUMN PI PD PK ALL DROP
+%token ENDL SEP INSERT UPDATE DELETE SELECT CREATE FROM INTO SET VALUES WHERE AND OR EQUAL TABLE INDEX COLUMN PI PD PK ALL DROP ON ISAM SEQ AVL
 %token INT DOUBLE CHAR BOOL
 %token GE G LE L
 %token <std::string> ID
@@ -81,6 +81,7 @@
 %type <std::vector<column_t>> CREATE_LIST
 %type <column_t> CREATE_UNIT
 %type <Type> TYPE
+%type <DB_ENGINE::DBEngine::Index_t> INDEX_TYPES
 %type <std::vector<std::string>> PARAMS
 
 %type <std::string> INPLACE_VALUE
@@ -109,12 +110,13 @@ INSERT_TYPE:        INSERT INTO ID {dr.check_table_name($3);} VALUES PI PARAMS P
 DELETE_TYPE:        DELETE FROM ID {dr.check_table_name($3);} CONDITIONALS {dr.remove($3, $5);};
 UPDATE_TYPE:        UPDATE ID SET SET_LIST CONDITIONALS;
 DROP_TYPE  :        DROP TABLE ID {dr.check_table_name($3); dr.drop_table($3);}
-CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.create_table($3, $5);}
+CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.create_table($3, $5);} | CREATE INDEX INDEX_TYPES ON ID PI ID PD {dr.create_index($5, $7, $3);};
 SELECT_TYPE:        SELECT COLUMNS FROM ID {dr.check_table_name($4);} CONDITIONALS {dr.select($4, $2, $6);} 
                     | SELECT ALL FROM ID {dr.check_table_name($4);} CONDITIONALS {dr.select($4, dr.get_engine().get_table_attributes($4), $6);};
 
 /* TYPES */
 TYPE:               INT {$$ = Type(Type::INT);}| DOUBLE {$$ = Type(Type::FLOAT);} | CHAR {$$ = Type(Type::VARCHAR, 1);} | CHAR PI NUM PD {$$ = Type(Type::VARCHAR, $3);}| BOOL {$$ = Type(Type::BOOL);}
+INDEX_TYPES:        ISAM {$$ = DB_ENGINE::DBEngine::Index_t::ISAM;} | SEQ {$$ = DB_ENGINE::DBEngine::Index_t::HASH;} | AVL {$$ = DB_ENGINE::DBEngine::Index_t::AVL;};
 
 /* COLUMN NAMES */
 COLUMNS:            COLUMNS SEP ID {$1.push_back($3); $$ = $1;} | ID {$$ = std::vector<std::string>{$1};}
