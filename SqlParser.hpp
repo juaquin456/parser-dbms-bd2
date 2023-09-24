@@ -47,9 +47,11 @@ public:
   void insert_from_file(const std::string &tablename,
                         const std::string &filename);
 
-  void insert(const std::string &tablename, const std::vector<std::string>& values);
+  void insert(const std::string &tablename,
+              const std::vector<std::string> &values);
 
-  void remove(const std::string &tablename, std::list<std::list<condition_t>> &constraint);
+  void remove(const std::string &tablename,
+              std::list<std::list<condition_t>> &constraint);
 
   void drop_table(const std::string &tablename);
 
