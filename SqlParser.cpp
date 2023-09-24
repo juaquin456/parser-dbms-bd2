@@ -212,6 +212,8 @@ void SqlParser::select(const std::string &tablename,
       // si lo tiene, asignar al constraint_key
       // si no, construir un predicado con los operadores;
 
+      spdlog::error("Column constraint: {}", column_constraint.column_name);
+
       auto indexes = this->m_engine.get_indexes_names(tablename);
 
       // If the column doesnt has an index
@@ -235,7 +237,7 @@ void SqlParser::select(const std::string &tablename,
 
     QueryResponse or_response;
     if (constraint_key.c == Comp::EQUAL) {
-
+      
       or_response = {m_engine.search(
           tablename, {constraint_key.column_name, constraint_key.value}, lamb,
           sorted_column_names)};
@@ -302,7 +304,7 @@ void SqlParser::select(const std::string &tablename,
     auto &alloc_tmp = tmp.GetAllocator();
     for (int i = 0; i < rec.m_fields.size(); i++) {
       tmp.AddMember(rapidjson::Value().SetString(sorted_column_names.at(i).c_str(), sorted_column_names.at(i).length(), alloc_tmp).Move(),
-                    rapidjson::Value().SetString(rec.m_fields.at(i).c_str(),
+                    rapidjson::Value().SetString(rec.m_fields.at(i).c_str(), rec.m_fields.at(i).size(), 
                                                  alloc_tmp).Move(),
                     alloc_tmp);
     }
