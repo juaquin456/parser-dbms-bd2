@@ -154,17 +154,20 @@ void SqlParser::create_index(const std::string &tablename,
                              const std::string &column_name,
                              const DB_ENGINE::DBEngine::Index_t &index_name) {
 
-  for (auto &attribute : m_engine.get_table_attributes(tablename)) {
-    if (attribute == column_name) {
-
-      /* if (!m_engine.create_index(tablename, column_name, index_name)) {
-        spdlog::error("Index already exists");
-        throw std::runtime_error("Index already exists");
-      } */
-      return;
-    }
+  // Validate table
+  if (!m_engine.is_table(tablename)) {
+    spdlog::error("Table doesn't exists");
+    throw std::runtime_error("Table doesn't exists");
   }
-  spdlog::error("Column doesn't exists");
+
+  // Validate attribute
+  auto attributes = m_engine.get_table_attributes(tablename);
+  if (std::ranges::find(attributes, column_name) == attributes.end()) {
+    spdlog::error("Column doesn't exists");
+    throw std::runtime_error("Column doesn't exists");
+  }
+
+  m_engine.create_index(tablename, column_name, index_name);
 }
 
 void SqlParser::select(const std::string &tablename,
@@ -337,7 +340,7 @@ void SqlParser::insert_from_file(const std::string &tablename,
 
 void SqlParser::insert(const std::string &tablename,
                        const std::vector<std::string> &values) {
-  // m_engine.add();
+  m_engine.add(tablename, values);
 }
 
 void SqlParser::remove(const std::string &tablename,

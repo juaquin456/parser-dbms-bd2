@@ -116,7 +116,7 @@ SELECT_TYPE:        SELECT COLUMNS FROM ID {dr.check_table_name($4);} CONDITIONA
 
 /* TYPES */
 TYPE:               INT {$$ = Type(Type::INT);}| DOUBLE {$$ = Type(Type::FLOAT);} | CHAR {$$ = Type(Type::VARCHAR, 1);} | CHAR PI NUM PD {$$ = Type(Type::VARCHAR, $3);}| BOOL {$$ = Type(Type::BOOL);}
-INDEX_TYPES:        ISAM {$$ = DB_ENGINE::DBEngine::Index_t::ISAM;} | SEQ {$$ = DB_ENGINE::DBEngine::Index_t::HASH;} | AVL {$$ = DB_ENGINE::DBEngine::Index_t::AVL;};
+INDEX_TYPES:        ISAM {$$ = DB_ENGINE::DBEngine::Index_t::ISAM;} | SEQ {$$ = DB_ENGINE::DBEngine::Index_t::SEQUENTIAL;} | AVL {$$ = DB_ENGINE::DBEngine::Index_t::AVL;};
 
 /* COLUMN NAMES */
 COLUMNS:            COLUMNS SEP ID {$1.push_back($3); $$ = $1;} | ID {$$ = std::vector<std::string>{$1};}
