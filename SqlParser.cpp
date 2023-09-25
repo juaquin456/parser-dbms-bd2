@@ -192,7 +192,7 @@ void SqlParser::select(const std::string &tablename,
 
   if (constraints.empty()) {
 
-    query_response = m_engine.load(tablename, column_names);
+    query_response = m_engine.load(tablename, sorted_column_names);
 
     spdlog::info("Query response size: {}", query_response.records.size());
     /*
