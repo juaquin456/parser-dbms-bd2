@@ -238,6 +238,11 @@ void SqlParser::select(const std::string &tablename,
       }
     }
 
+    if (constraint_key.column_name.empty()) {
+      query_response = m_engine.load(tablename, sorted_column_names, lamb);
+      break;
+    }
+
     QueryResponse or_response;
     if (constraint_key.c == Comp::EQUAL) {
 
