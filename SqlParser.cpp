@@ -173,7 +173,6 @@ void SqlParser::create_index(const std::string &tablename,
 void SqlParser::select(const std::string &tablename,
                        const std::vector<std::string> &column_names,
                        const std::list<std::list<condition_t>> &constraints) {
-
   auto sorted_column_names = column_names;
   m_engine.sort_attributes(tablename, sorted_column_names);
 
@@ -205,9 +204,7 @@ void SqlParser::select(const std::string &tablename,
   for (const auto &or_constraint : constraints) {
 
     condition_t constraint_key;
-
-    std::function<bool(const DB_ENGINE::Record &rec)> lamb =
-        [](const DB_ENGINE::Record & /*rec*/) { return true; };
+    std::vector<std::function<bool(const DB_ENGINE::Record &rec)>> lambs;
 
     // Iterating the AND contraints
     for (const auto &column_constraint : or_constraint) {
@@ -227,9 +224,7 @@ void SqlParser::select(const std::string &tablename,
             tablename, column_constraint.c, column_constraint.column_name,
             column_constraint.value);
 
-        lamb = [&lamb, &record_comp](const DB_ENGINE::Record &rec) {
-          return lamb(rec) && record_comp(rec);
-        };
+        lambs.push_back(record_comp);
       } else {
         // If the column has an index and the constraint_key is empty
         if (constraint_key.column_name.empty()) {
@@ -239,13 +234,36 @@ void SqlParser::select(const std::string &tablename,
     }
 
     if (constraint_key.column_name.empty()) {
+
+      auto lamb = [lambs](const Record& rec){
+        bool res = true;
+        spdlog::error("LAMBS SIZE {}", lambs.size());
+        for (auto& l: lambs) {
+          spdlog::error("RESULT LAMB {}", l(rec));
+          res = res && l(rec);
+        }
+        return res;
+      };
+
+      spdlog::error("INIT LOAD");
       query_response = m_engine.load(tablename, sorted_column_names, lamb);
+      spdlog::error("INIT LOADED {}", query_response.records.size());
+      /* for (const auto& rec: query_response.records) {
+        spdlog::error("FUNCIONA :: {}", lamb(rec));
+      } */
+      //spdlog::error("FINISH LOAD");
       break;
     }
 
     QueryResponse or_response;
     if (constraint_key.c == Comp::EQUAL) {
-
+      auto lamb = [lambs](const Record& rec){
+        bool res = true;
+        for (auto& l: lambs) {
+          res = res && l(rec);
+        }
+        return res;
+      };
       or_response = {m_engine.search(
           tablename, {constraint_key.column_name, constraint_key.value}, lamb,
           sorted_column_names)};
@@ -266,7 +284,13 @@ void SqlParser::select(const std::string &tablename,
       case Comp::EQUAL:
         break;
       }
-
+      auto lamb = [lambs](const Record& rec){
+        bool res = true;
+        for (auto& l: lambs) {
+          res = res && l(rec);
+        }
+        return res;
+      };
       or_response = m_engine.range_search(tablename, begin_key, end_key, lamb,
                                           sorted_column_names);
     }
