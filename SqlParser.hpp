@@ -40,8 +40,9 @@ public:
               const std::vector<std::string> &column_names,
               const std::list<std::list<condition_t>> &constraints);
   void select_between(const std::string &tablename,
-              const std::vector<std::string> &column_names,
-              const std::string &id, const std::string &val1, const std::string &val2);            
+                      const std::vector<std::string> &column_names,
+                      const std::string &id, const std::string &val1,
+                      const std::string &val2);
   auto get_engine() -> DB_ENGINE::DBEngine & { return m_engine; }
 
   void insert_from_file(const std::string &tablename,
@@ -59,6 +60,8 @@ private:
   DB_ENGINE::DBEngine m_engine;
   ParserResponse m_parser_response;
 
+  void query_to_json(const DB_ENGINE::QueryResponse &query_response,
+                     const std::vector<std::string> &sorted_column_names);
   void parse_helper(std::istream &stream);
   std::unordered_set<std::string> m_tablenames;
   yy::parser *m_parser = nullptr;

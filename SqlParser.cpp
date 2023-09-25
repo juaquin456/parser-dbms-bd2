@@ -173,10 +173,9 @@ void SqlParser::create_index(const std::string &tablename,
 void SqlParser::select(const std::string &tablename,
                        const std::vector<std::string> &column_names,
                        const std::list<std::list<condition_t>> &constraints) {
-  auto sorted_column_names = column_names;
-  m_engine.sort_attributes(tablename, sorted_column_names);
+  auto sorted_column_names = m_engine.sort_attributes(tablename, column_names);
 
-  auto table_attributes = this->m_engine.get_table_attributes(tablename);
+  const auto &table_attributes = this->m_engine.get_table_attributes(tablename);
 
   QueryResponse query_response;
 
@@ -189,22 +188,19 @@ void SqlParser::select(const std::string &tablename,
     throw std::runtime_error("Column doesn't exists");
   }
 
+  // No indexed attribute found
   if (constraints.empty()) {
-
     query_response = m_engine.load(tablename, sorted_column_names);
-
     spdlog::info("Query response size: {}", query_response.records.size());
-    /*
-        m_parser_response.query_times = to_string(query_response.query_times);
-        m_parser_response.records = to_string(query_response.records);
-        return; */
+    query_to_json(query_response, sorted_column_names);
+    return;
   }
 
   // Iterating OR constraints
   for (const auto &or_constraint : constraints) {
 
     condition_t constraint_key;
-    std::vector<std::function<bool(const DB_ENGINE::Record &rec)>> lambs;
+    std::vector<std::function<bool(const DB_ENGINE::Record &rec)>> lambdas;
 
     // Iterating the AND contraints
     for (const auto &column_constraint : or_constraint) {
@@ -224,51 +220,38 @@ void SqlParser::select(const std::string &tablename,
             tablename, column_constraint.c, column_constraint.column_name,
             column_constraint.value);
 
-        lambs.push_back(record_comp);
-      } else {
+        lambdas.push_back(record_comp);
+
         // If the column has an index and the constraint_key is empty
-        if (constraint_key.column_name.empty()) {
-          constraint_key = column_constraint;
-        }
+      } else if (constraint_key.column_name.empty()) {
+        constraint_key = column_constraint;
       }
     }
 
+    // Convert vec of lambdas to a single one
+    spdlog::info("Lambdas size: {}", lambdas.size());
+    auto joined_lambdas = [lambdas](const Record &rec) {
+      return std::ranges::all_of(lambdas, [&](const auto &single_lambda) {
+        return single_lambda(rec);
+      });
+    };
+
+    // No indexed key in constraints, performing linear search
     if (constraint_key.column_name.empty()) {
-
-      auto lamb = [lambs](const Record& rec){
-        bool res = true;
-        spdlog::error("LAMBS SIZE {}", lambs.size());
-        for (auto& l: lambs) {
-          spdlog::error("RESULT LAMB {}", l(rec));
-          res = res && l(rec);
-        }
-        return res;
-      };
-
       spdlog::error("INIT LOAD");
-      query_response = m_engine.load(tablename, sorted_column_names, lamb);
+      query_response =
+          m_engine.load(tablename, sorted_column_names, joined_lambdas);
       spdlog::error("INIT LOADED {}", query_response.records.size());
-      /* for (const auto& rec: query_response.records) {
-        spdlog::error("FUNCIONA :: {}", lamb(rec));
-      } */
-      //spdlog::error("FINISH LOAD");
       break;
     }
 
     QueryResponse or_response;
     if (constraint_key.c == Comp::EQUAL) {
-      auto lamb = [lambs](const Record& rec){
-        bool res = true;
-        for (auto& l: lambs) {
-          res = res && l(rec);
-        }
-        return res;
-      };
       or_response = {m_engine.search(
-          tablename, {constraint_key.column_name, constraint_key.value}, lamb,
-          sorted_column_names)};
-    } else {
+          tablename, {constraint_key.column_name, constraint_key.value},
+          joined_lambdas, sorted_column_names)};
 
+    } else {
       Attribute begin_key = DB_ENGINE::KEY_LIMITS::MIN;
       Attribute end_key = DB_ENGINE::KEY_LIMITS::MAX;
 
@@ -284,22 +267,21 @@ void SqlParser::select(const std::string &tablename,
       case Comp::EQUAL:
         break;
       }
-      auto lamb = [lambs](const Record& rec){
-        bool res = true;
-        for (auto& l: lambs) {
-          res = res && l(rec);
-        }
-        return res;
-      };
-      or_response = m_engine.range_search(tablename, begin_key, end_key, lamb,
-                                          sorted_column_names);
+      or_response = m_engine.range_search(tablename, begin_key, end_key,
+                                          joined_lambdas, sorted_column_names);
     }
+
     query_response.query_times =
         merge_times(query_response.query_times, or_response.query_times);
-
     query_response.records =
         merge_records(query_response.records, or_response.records);
   }
+  query_to_json(query_response, sorted_column_names);
+}
+
+void SqlParser::query_to_json(
+    const DB_ENGINE::QueryResponse &query_response,
+    const std::vector<std::string> &sorted_column_names) {
 
   rapidjson::Document doc;
   doc.SetObject();
