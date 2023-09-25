@@ -113,9 +113,9 @@ DROP_TYPE  :        DROP TABLE ID {dr.check_table_name($3); dr.drop_table($3);}
 CREATE_TYPE:        CREATE TABLE ID PI CREATE_LIST PD {dr.create_table($3, $5);} | CREATE INDEX INDEX_TYPES ON ID PI ID PD {dr.create_index($5, $7, $3);};
 SELECT_TYPE:        SELECT COLUMNS FROM ID {dr.check_table_name($4);} CONDITIONALS {dr.select($4, $2, $6);} 
                     | SELECT ALL FROM ID {dr.check_table_name($4);} CONDITIONALS {dr.select($4, dr.get_engine().get_table_attributes($4), $6);}
-                    | SELECT ALL FROM ID WHERE ID BETWEEN PI INPLACE_VALUE SEP INPLACE_VALUE PD {dr.select_between($4, dr.get_engine().get_table_attributes($4), $6, $9, $11);}
+                    /* | SELECT ALL FROM ID WHERE ID BETWEEN PI INPLACE_VALUE SEP INPLACE_VALUE PD {dr.select_between($4, dr.get_engine().get_table_attributes($4), $6, $9, $11);}
                     | SELECT COLUMNS FROM ID WHERE ID BETWEEN PI INPLACE_VALUE SEP INPLACE_VALUE PD {dr.select_between($4, $2, $6, $9, $11);};
-
+ */
 /* TYPES */
 TYPE:               INT {$$ = Type(Type::INT);}| DOUBLE {$$ = Type(Type::FLOAT);} | CHAR {$$ = Type(Type::VARCHAR, 1);} | CHAR PI NUM PD {$$ = Type(Type::VARCHAR, $3);}| BOOL {$$ = Type(Type::BOOL);}
 INDEX_TYPES:        ISAM {$$ = DB_ENGINE::DBEngine::Index_t::ISAM;} | SEQ {$$ = DB_ENGINE::DBEngine::Index_t::SEQUENTIAL;} | AVL {$$ = DB_ENGINE::DBEngine::Index_t::AVL;};
