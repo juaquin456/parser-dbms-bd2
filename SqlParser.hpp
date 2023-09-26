@@ -13,19 +13,40 @@
 #include "scanner.hpp"
 
 struct ParserResponse {
-  std::string records;
-  std::string query_times;
+  std::vector<Record> records;
+  query_time_t query_times;
+  std::vector<std::string> column_names;
+  std::vector<std::string> table_names;
+  std::string error;
+  int code = 200;
+  void clear() {
+    records.clear();
+    query_times.clear();
+    column_names.clear();
+    table_names.clear();
+  }
+  auto failed() const -> bool { return code != 200; }
 };
 
 class SqlParser {
 public:
   SqlParser() = default;
+  void clear() { m_parser_response.clear(); }
 
   ~SqlParser();
 
+  void displayResponse() {
+    for (const auto &table : m_parser_response.table_names) {
+      std::cout << table << std::endl;
+    }
+    for (const auto &table : m_parser_response.query_times) {
+      std::cout << table.first << std::endl;
+    }
+  }
+
   void parse(const char *filename);
 
-  auto parse(std::istream &stream) -> ParserResponse;
+  auto parse(std::istream &stream) -> ParserResponse &;
 
   void check_table_name(const std::string &tablename);
 
@@ -60,8 +81,8 @@ private:
   DB_ENGINE::DBEngine m_engine;
   ParserResponse m_parser_response;
 
-  void query_to_json(const DB_ENGINE::QueryResponse &query_response,
-                     const std::vector<std::string> &sorted_column_names);
+  void query_to_output(const DB_ENGINE::QueryResponse &query_response,
+                       const std::vector<std::string> &sorted_column_names);
   void parse_helper(std::istream &stream);
   std::unordered_set<std::string> m_tablenames;
   yy::parser *m_parser = nullptr;
